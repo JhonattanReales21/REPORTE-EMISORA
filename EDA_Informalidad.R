@@ -59,5 +59,52 @@ ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategr
   coord_flip()
 
                       ##### ANALYSIS WITH RESPECT TO GENDER ######
-Y4_gender <- Dane_paramodelos %>% group_by(Genero, Y_modelo4) %>% summarise(Frecuencia=n()) %>% mutate(Proporcion = Y4_gender$Frecuencia/sum(Y4_gender$Frecuencia))
-Y4_gender <- Y4_gender 
+Dane_paramodelos$Genero <- as.factor(Dane_paramodelos$Genero)
+table(Dane_paramodelos$Genero)
+Y4_gender <- Dane_paramodelos %>%  group_by(Genero, Y_modelo4) %>% summarise(Frecuencia=n())
+Y4_gender$Proporcion <- c(Y4_gender[1,3]/9479, Y4_gender[2,3]/9479, Y4_gender[3,3]/9479, Y4_gender[4,3]/11653, Y4_gender[5,3]/11653, Y4_gender[6,3]/11653)
+Y4_female <- Y4_gender[1:3, ]
+Y4_male <- Y4_gender[4:6, ]
+
+# Compute the cumulative percentages (top of each rectangle)
+Y4_female$ymax = cumsum(Y4_female$Proporcion)
+Y4_male$ymax = cumsum(Y4_male$Proporcion)
+
+# Compute the bottom of each rectangle
+Y4_female$ymin = c(0, head(Y4_female$ymax, n=-1))
+Y4_male$ymin = c(0, head(Y4_male$ymax, n=-1))
+
+# Compute label position
+Y4_female$labelPosition <- (Y4_female$ymax + Y4_female$ymin) / 2
+Y4_male$labelPosition <- (Y4_male$ymax + Y4_male$ymin) / 2
+
+# Compute a good label
+Y4_female$label <- paste0("\n Frecuencia: ", Y4_female$Frecuencia)
+Y4_male$label <- paste0("\n Frecuencia: ", Y4_male$Frecuencia)
+
+female_plot <- ggplot(Y4_female, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
+  geom_rect() +
+  geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
+  scale_fill_brewer(name= "Tipo de Ocupación", palette = "Blues")  + 
+  coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
+  xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
+  theme_void() +  
+  ggtitle("Ocupación de mujeres inmigrantes") + 
+  theme(axis.text  = element_blank(),
+        plot.title = element_text(color = "darkblue", size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+
+
+male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
+  geom_rect() +
+  geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
+  scale_fill_brewer(name= "Tipo de Ocupación", palette = "Blues")  + 
+  coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
+  xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
+  theme_void() +  
+  ggtitle("Ocupación de hombres inmigrantes") + 
+  theme(axis.text  = element_blank(),
+        plot.title = element_text(color = "darkblue", size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+grid.arrange(female_plot, male_plot,nrow=1)
+
+
+                                ##### ANALYSIS WITH RESPECT TO TIME IN COLOMBIA ######

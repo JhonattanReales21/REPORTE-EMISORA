@@ -48,6 +48,7 @@ ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="sla
 
 
                         ##### ANALYSIS WITH RESPECT TO ACTIVITY CATEGORY ######
+#Complementar con las otras categorias de ocupado y desocupado
 Y4_Informal <- filter(Dane_paramodelos, Y_modelo4=="Informal")
 Y4_Informal <- as.data.frame(table(as.factor(Y4_Informal$Rama.actividad)))
 Y4_Informal <- arrange(Y4_Informal, desc(Freq))
@@ -82,7 +83,7 @@ Y4_male$label <- paste0("\n Frecuencia: ", Y4_male$Frecuencia)
 female_plot <- ggplot(Y4_female, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
   geom_rect() +
   geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
-  scale_fill_brewer(name= "Tipo de Ocupación", palette = "Blues")  + 
+  scale_fill_manual(name= "Tipo de Ocupación", values=c("slategray","slategray3", "slategray2")) +
   coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
   xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
   theme_void() +  
@@ -94,7 +95,7 @@ female_plot <- ggplot(Y4_female, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=
 male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
   geom_rect() +
   geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
-  scale_fill_brewer(name= "Tipo de Ocupación", palette = "Blues")  + 
+  scale_fill_manual(name= "Tipo de Ocupación", values=c("slategray","slategray3", "slategray2")) +
   coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
   xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
   theme_void() +  
@@ -109,12 +110,19 @@ grid.arrange(female_plot, male_plot,nrow=1)
 Y4_time <- Dane_paramodelos %>% group_by(tiempo.en.colombia, Y_modelo4) %>% summarise(Frecuencia=n()) # Imprimir esta tabla
 
 ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + geom_bar(position="dodge", stat = "identity") + 
-  geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia)) + 
-  scale_fill_brewer(palette="Blues") +
+  scale_fill_manual(values=c("slategray","slategray3", "slategray2")) +
   ggtitle("Ocupación según tiempo en Colombia") +
   xlab("Ocupación") +
   ylab("Frecuencia") +
   theme_classic()
 
 
+                                  ##### ANALYSIS WITH RESPECT TO EDUCATION LEVEL ######
+#Imprimir esta tabla
+Y4_education <- Dane_paramodelos %>% group_by(Nivel.educativo.alcanzado, Y_modelo4) %>% summarise(Frecuencia = n())
+ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_bar() + geom_text(aes(x=Nivel.educativo.alcanzado, y=Freq, label=Freq), hjust=-0.1) + 
+  ggtitle("Ramas de actividad en empleados Informales") + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
+  theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
+  coord_flip()
 

@@ -54,7 +54,7 @@ Y4_Informal <- arrange(Y4_Informal, desc(Freq))
 Y4_Informal <- Y4_Informal[1:10, ]
 ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
   ggtitle("Ramas de actividad en empleados Informales") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12,family = "Tahoma")) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
   theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
   coord_flip()
 
@@ -91,7 +91,7 @@ female_plot <- ggplot(Y4_female, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=
   theme_void() +  
   ggtitle("Ocupación de mujeres inmigrantes") + 
   theme(axis.text  = element_blank(),
-        plot.title = element_text(color = "darkblue", size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+        plot.title = element_text( size = 12, face = "bold", hjust = 0.7, vjust=0.5))
 
 
 male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
@@ -103,8 +103,15 @@ male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_mo
   theme_void() +  
   ggtitle("Ocupación de hombres inmigrantes") + 
   theme(axis.text  = element_blank(),
-        plot.title = element_text(color = "darkblue", size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+        plot.title = element_text(size = 12, face = "bold", hjust = 0.7, vjust=0.5))
 grid.arrange(female_plot, male_plot,nrow=1)
 
 
                                 ##### ANALYSIS WITH RESPECT TO TIME IN COLOMBIA ######
+
+
+
+
+
+
+

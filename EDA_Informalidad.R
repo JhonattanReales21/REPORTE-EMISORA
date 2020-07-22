@@ -69,16 +69,13 @@ Y4_male <- Y4_gender[4:6, ]
 # Compute the cumulative percentages (top of each rectangle)
 Y4_female$ymax = cumsum(Y4_female$Proporcion)
 Y4_male$ymax = cumsum(Y4_male$Proporcion)
-
 # Compute the bottom of each rectangle
 Y4_female$ymin = c(0, head(Y4_female$ymax, n=-1))
 Y4_male$ymin = c(0, head(Y4_male$ymax, n=-1))
-
 # Compute label position
 Y4_female$labelPosition <- (Y4_female$ymax + Y4_female$ymin) / 2
 Y4_male$labelPosition <- (Y4_male$ymax + Y4_male$ymin) / 2
-
-# Compute a good label
+# Compute a label text
 Y4_female$label <- paste0("\n Frecuencia: ", Y4_female$Frecuencia)
 Y4_male$label <- paste0("\n Frecuencia: ", Y4_male$Frecuencia)
 
@@ -109,9 +106,15 @@ grid.arrange(female_plot, male_plot,nrow=1)
 
                                 ##### ANALYSIS WITH RESPECT TO TIME IN COLOMBIA ######
 
+Y4_time <- Dane_paramodelos %>% group_by(tiempo.en.colombia, Y_modelo4) %>% summarise(Frecuencia=n()) # Imprimir esta tabla
 
-
-
+ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + geom_bar(position="dodge", stat = "identity") + 
+  geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia)) + 
+  scale_fill_brewer(palette="Blues") +
+  ggtitle("Ocupación según tiempo en Colombia") +
+  xlab("Ocupación") +
+  ylab("Frecuencia") +
+  theme_classic()
 
 
 

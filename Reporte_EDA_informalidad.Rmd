@@ -12,9 +12,8 @@ output:
 library(tidyverse)
 library(Hmisc)
 library(gridExtra)
-library(extrafont)
-font_import()
-loadfonts(device = "win")
+library(knitr)
+
 
 Dane_paramodelos <- read.csv("Dane_paramodelos.csv", sep=",", fileEncoding = "Latin1")
 Y4_description <- describe(Dane_paramodelos)
@@ -26,11 +25,6 @@ Y4_description <- describe(Dane_paramodelos)
 Y4_description <- data.frame("Ocupación"=Y4_description$Y_modelo4$values$value, 
                              "Frecuencia"=Y4_description$Y_modelo4$values$frequency, 
                              "Proporción"=c(0.140, 0.659, 0.2))
-ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(fill="slategray") + 
-  geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12,family = "Tahoma")) + 
-  theme_classic() 
 
 # PER DEPARTAMENTO
 Depto <- c(5, 8,11, 13, 15, 17, 18, 19, 20, 23, 25, 27, 41, 44, 47, 50, 52, 54, 63, 66, 68, 70, 73, 76 )
@@ -49,13 +43,6 @@ Y4_per_departamento$Departamento <- fct_collapse(Y4_per_departamento$Departament
                                     "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
                                     "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
 
-ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="slategray") + geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia según departamento") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12,family = "Tahoma")) + 
-  theme_classic()  + 
-  facet_wrap(~Departamento) + 
-  xlab("Ocupación")
-
 
 
 
@@ -67,7 +54,7 @@ Y4_Informal <- arrange(Y4_Informal, desc(Freq))
 Y4_Informal <- Y4_Informal[1:10, ]
 oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
   ggtitle("Ramas de actividad en Inmigrantes Informales") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
   theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
   coord_flip()
 #Ocupado
@@ -77,7 +64,7 @@ Y4_Ocupado <- arrange(Y4_Ocupado, desc(Freq))
 Y4_Ocupado <- Y4_Ocupado[1:10, ]
 oc_ocupado <- ggplot(Y4_Ocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray3") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
   ggtitle("Ramas de actividad en Inmigrantes Ocupados") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
   theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
   coord_flip()
 #Desocupado
@@ -111,7 +98,7 @@ Y4_activities$Departamento <- fct_collapse(Y4_activities$Departamento, "Antioqui
 
 ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
   ggtitle("Ramas de actividad relevantes según departamento") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12,family = "Tahoma")) + 
+  theme(title = element_text(hjust=0.5), text = element_text(size=12)) + 
   theme_classic()  + 
   facet_wrap(~Departamento) + 
   xlab("Ramas de actividad") + 
@@ -186,7 +173,7 @@ ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) +
 Y4_education <- Dane_paramodelos %>%  group_by(Nivel.educativo.alcanzado, Y_modelo4) %>% summarise(Frecuencia = n())
 ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray") +  geom_text(aes(x=Nivel.educativo.alcanzado, y=Frecuencia, label=Frecuencia), hjust=-0.1, size=3) +
   ggtitle("Niveles de educación Inmigrantes Informales") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
   theme_classic() + labs(x="Nivel de educación" ,y="Frecuencia") +
   coord_flip() + facet_wrap(~Y_modelo4)
 
@@ -198,18 +185,60 @@ ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Fre
 
 ## INTRODUCCIÓN
 
-El presente reporte tiene como objetivo presentar un análisis exploratorio a la situación de los inmigrantes en Colombia a partir de la base de datos de la Gran Encuesta Integrada de Hogares (GEIH) realizada por el departamento administrativo nacional de estadística (DANE) mediante la cual se solicita información sobre las condiciones de empleo de las personas (si trabajan, en qué trabajan, cuánto ganan, si tienen seguridad social en salud o si están buscando empleo), además de las características generales de la población como sexo, edad, estado civil y nivel educativo, se pregunta sobre sus fuentes de ingresos. Esta encuesta proporciona datos de las personas a nivel nacional, regional, departamental y de las capitales de los departamentos. 
+El presente reporte tiene como objetivo presentar un análisis exploratorio de la situación de los inmigrantes en Colombia a partir de la base de datos de la Gran Encuesta Integrada de Hogares (GEIH) realizada por el departamento administrativo nacional de estadística (DANE), mediante la cual se solicita información sobre las condiciones de empleo de las personas (si trabajan, en qué trabajan, cuánto ganan, si tienen seguridad social en salud o si están buscando empleo), además de las características generales de la población como sexo, edad, estado civil y nivel educativo, se pregunta sobre sus fuentes de ingresos. Esta encuesta proporciona datos de las personas a nivel nacional, regional, departamental y de las capitales de los departamentos. Los datos recolectados van desde Enero del 2019 hasta Febrero de 2020.
+El reporte pretende abarcar aspectos como ocupación, haciendo especial énfasis en el empleo informal y en las variables más importantes cuando se toca el tema de informalidad. Además, se presentarán las ramas de actividad más relevantes y cómo estas se presentan en los departamentos. Adicionalmente, se muestra cómo se distribuyen los ingresos y las variaciones que este tiene con respecto a múltiples variables entre las que se encuentran el sexo. Finalmente se dirá cuáles regiones presentan un mejor y peor escenario con respecto a los ingresos.
 
-```{r cars}
-summary(cars)
+
+
+## ANÁLISIS DE OCUPACIÓN
+
+###Panorama General
+
+De manera general, la base de datos del DANE muestra que las ocupaciones registradas son:
+* Ocupado: corresponde a la persona que durante el período de referencia trabajó por lo menos una hora remunerada en la semana de referencia; no trabajó la semana de referencia pero tenía un trabajo, y que sea trabajador familiar sin remuneración y trabajó en la semana de referencia por lo menos 1 hora. 
+* Informal:Hace referencia a los empleados particulares y los obreros que laboran en establecimientos, negocios o empresas que ocupen hasta cinco personas en todas sus agencias y sucursales, incluyendo al patrono y/o socio; los trabajadores familiares sin remuneración; los trabajadores sin remuneración en empresas o negocios de otros hogares; Los empleados domésticos; los jornaleros o peones; los trabajadores por cuenta propia que laboran en establecimientos hasta cinco
+personas, excepto los independientes profesionales y los patrones o empleadores en empresas de cinco trabajadores o menos;
+* Desocupado: Se incluye la población que en la semana de referencia se encontraba sin empleo; hicieron diligencias en el último mes; No hicieron diligencias en el último mes, pero sí en los últimos 12 meses y tienen una razón válida de desaliento; poseen disponibilidad.
+
+De acuerdo a lo presentado anteriormente, se observa en la Tabla 1, que los empleados informales representan la gran mayoría de las personas encuestadas. En este sentido, se observa que los informales abarcan el 65,9% del total de encuestados, mientras que los ocupados le siguen en segundo lugar con el 20% y los desocupados con el 14% 
+
+
+```{r, echo=FALSE, fig.cap="Tabla 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+kable(Y4_description)
 ```
+La Figura 1 muestra gráficamente cómo se distribuye la ocupación entre los inmigrantes encuestados por el DANE.
+
+```{r, echo=FALSE, fig.cap="Imagen 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(fill="slategray") + 
+  geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
+  ggtitle("Ocupación de inmigrantes en Colombia") + 
+  theme(title = element_text(hjust=0.5), text = element_text(size=12)) + 
+  theme_classic() 
+```
+
+Pasando a un análisis más detallado por departamento, es posible identificar en la Figura 2 que la informalidad predomina en todos los departamentos donde se efectuó la encuesta. En algunos como en los departamentos de Atlántico, La Guajira, Tolima o Risaralda la diferencia es significativa, ocupando esta clase más de 7 veces lo que las demás ocupan.
+
+```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="slategray") + geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia), vjust=-0.3, size=3) + 
+  ggtitle("Ocupación de inmigrantes en Colombia según departamento") +  theme_classic()  + 
+  theme(title = element_text(hjust=0.5), axis.text.x = element_text(angle = 90)) + 
+  facet_wrap(~Departamento) + 
+  xlab("Ocupación")
+```
+
+### Exploración de ocupación con respecto a Ramas de Actividad
+
+El DANE distingue de acuerdo a la Clasificación Internacional Uniforme de Ocupaciones (CIUO) múltiples ramas de actividad. De acuerdo a la cuesta realizada, se tiene un total de 56 ramas de actividad en las cuales se desempeñan los inmigrantes. La Figura 3 muestra de forma general cuáles son las ramas con mayor cantidad de encuestados de acuerdo a su ocupación.
+
+
 
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

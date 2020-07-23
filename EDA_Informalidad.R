@@ -48,6 +48,7 @@ ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="sla
 
 
 
+
                         ##### ANALYSIS WITH RESPECT TO ACTIVITY CATEGORY ######
 #Informal
 Y4_Informal <- filter(Dane_paramodelos, Y_modelo4=="Informal")

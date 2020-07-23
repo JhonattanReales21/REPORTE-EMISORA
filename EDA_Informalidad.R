@@ -176,7 +176,7 @@ ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) +
 #Imprimir esta tabla
 Y4_education <- Dane_paramodelos %>%  group_by(Nivel.educativo.alcanzado, Y_modelo4) %>% summarise(Frecuencia = n())
 ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray") +  geom_text(aes(x=Nivel.educativo.alcanzado, y=Frecuencia, label=Frecuencia), hjust=-0.1, size=3) +
-  ggtitle("Niveles de educación Inmigrantes Informales") + 
+  ggtitle("Niveles de educación Inmigrantes en Colombia") + 
   theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
   theme_classic() + labs(x="Nivel de educación" ,y="Frecuencia") +
   coord_flip() + facet_wrap(~Y_modelo4)

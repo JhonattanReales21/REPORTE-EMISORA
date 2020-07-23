@@ -148,21 +148,11 @@ male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_mo
   ggtitle("Ocupación de hombres inmigrantes") + 
   theme(axis.text  = element_blank(),
         plot.title = element_text(size = 12, face = "bold", hjust = 0.7, vjust=0.5))
-grid.arrange(female_plot, male_plot,nrow=1)
 
 
                                 ##### ANALYSIS WITH RESPECT TO TIME IN COLOMBIA ######
 # Imprimir esta tabla
 Y4_time <- Dane_paramodelos %>% group_by(tiempo.en.colombia, Y_modelo4) %>% summarise(Frecuencia=n()) 
-
-ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
-  geom_bar(position="dodge", stat = "identity") + 
-  scale_fill_manual(values=c("slategray","slategray3", "slategray2")) +
-  ggtitle("Ocupación según tiempo en Colombia") +
-  xlab("Ocupación") +
-  ylab("Frecuencia") +
-  theme_classic()
-
 
                                   ##### ANALYSIS WITH RESPECT TO EDUCATION LEVEL ######
 #Imprimir esta tabla
@@ -254,9 +244,8 @@ Similar al análisis realizado en la Figura 2, las principales ramas de activida
 ```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes", fig.align="center",fig.width=8, fig.height=8}
 
 ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + coord_flip() + 
-  ggtitle("Ramas de actividad relevantes según departamento") + 
+  ggtitle("Ramas de actividad relevantes según departamento") +   theme_classic()  + 
   theme(plot.title = element_text(hjust=0.5, face = "bold"), text = element_text(size=12)) + 
-  theme_classic()  + 
   facet_wrap(~Departamento) + 
   xlab("Ramas de actividad") 
 
@@ -266,9 +255,58 @@ ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_t
 
 ### Situación con respecto al género
 
+Para tener una visión más clara de cómo se distribuyen los niveles de ocupación entre los hombres y mujeres, en esta sección se presenta el análisis comparando la ocupación para dichos géneros. La Tabla 2 resume los hallazgos principales. Allí se evidencia que la informalidad predomina en altos niveles similares para ambos sexos, representando así el 66,5% de los hombres y el 65,2% de las mujeres.
+Otra observación relevante es que la proporción de hombres ocupados es superior a la de mujeres ocupadas (13,1% y 6,9% para hombres y mujeres respectivamente con respecto al total de la base de datos). Por lo tanto, se deduce que la proporción de mujeres desocupadas es superior que la de hombres desocupado. Esto también puede ser comprobado en la Tabla 2
+
+```{r, echo=FALSE, fig.cap="Tabla 2: Ocupación de acuerdo al género", fig.align="center"}
+kable(Y4_gender)
+```
+
+
+
+La Figura 4 presenta de manera más gráfica la información principal de la distribución de los niveles de ocupación entre el género. 
+
+
+
+
+```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según sexo"}
+grid.arrange(female_plot, male_plot,nrow=1)
+```
+
+
+### Análisis con respecto al tiempo en Colombia
+
+La GEIH también analiza dentro de sus variables el tiempo que tienen los inmigrantes de estar en Colombia. Con respecto a ello, la Tabla 3 resume la información más relevante. De allí es posible señalar que el número de inmigrantes que llevan de 1 a 5 años en Colombia predomina sobre los que llevan más de 5 años y menos de 1 año. Siendo en todos los casos la población de ocupación informal como la más prominente, seguida por ocupado y finalmente desocupado.
+
+
+```{r, echo=FALSE, fig.cap="Tabla 3: Ocupación según tiempo en Colombia", fig.align="center"}
+kable(Y4_time)
+```
 
 
 
 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Con el fin de complementar la información presentada por la Tabla 3. La Figura 5 muestra cómo se distribuyen los distintos niveles de ocupación de acuerdo al tiempo en Colombia que lleven los inmigrantes. Se distingue claramente que la informalidad predomina sobre los otros niveles de ocupación. Adicionalmente, el volumen de encuestados informales es muy superior para los que llevan de 1 a 5 años en Colombia.
+Por otro lado, no se tiene evidencia que un mayor tiempo en Colombia influya en obtener algún tipo de empleo u ocupación formal, dado que el volumen de la población que lleva más de 5 años en Colombia no es significativo en el nivel de ocupado. Similarmente, se aprecia que el volumen de las personas ocupadas que llevan menos de 1 año en Colombia es similar al volumen de las que se encuentran desocupadas.
+
+
+```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según sexo"}
+ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
+  geom_bar(position="dodge", stat = "identity") + 
+  scale_fill_manual(name="Tiempo en Colombia", values=c("slategray","slategray3", "slategray2")) +
+  ggtitle("Ocupación según tiempo en Colombia") +
+  xlab("Ocupación") +
+  ylab("Frecuencia") +
+  theme_classic() + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"))
+
+```
+
+
+### Panorama con respecto al nivel de educación
+
+
+
+
+

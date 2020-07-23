@@ -157,15 +157,6 @@ Y4_time <- Dane_paramodelos %>% group_by(tiempo.en.colombia, Y_modelo4) %>% summ
                                   ##### ANALYSIS WITH RESPECT TO EDUCATION LEVEL ######
 #Imprimir esta tabla
 Y4_education <- Dane_paramodelos %>%  group_by(Nivel.educativo.alcanzado, Y_modelo4) %>% summarise(Frecuencia = n())
-ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray") +  geom_text(aes(x=Nivel.educativo.alcanzado, y=Frecuencia, label=Frecuencia), hjust=-0.1, size=3) +
-  ggtitle("Niveles de educación Inmigrantes Informales") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
-  theme_classic() + labs(x="Nivel de educación" ,y="Frecuencia") +
-  coord_flip() + facet_wrap(~Y_modelo4)
-
-
-
-
 
 ```
 
@@ -178,13 +169,15 @@ El reporte pretende abarcar aspectos como ocupación, haciendo especial énfasis
 
 ## ANÁLISIS DE OCUPACIÓN
 
-###Panorama General
+### Panorama General
 
 De manera general, la base de datos del DANE muestra que las ocupaciones registradas son:
+
 * Ocupado: corresponde a la persona que durante el período de referencia trabajó por lo menos una hora remunerada en la semana de referencia; no trabajó la semana de referencia pero tenía un trabajo, y que sea trabajador familiar sin remuneración y trabajó en la semana de referencia por lo menos 1 hora. 
-* Informal:Hace referencia a los empleados particulares y los obreros que laboran en establecimientos, negocios o empresas que ocupen hasta cinco personas en todas sus agencias y sucursales, incluyendo al patrono y/o socio; los trabajadores familiares sin remuneración; los trabajadores sin remuneración en empresas o negocios de otros hogares; Los empleados domésticos; los jornaleros o peones; los trabajadores por cuenta propia que laboran en establecimientos hasta cinco
-personas, excepto los independientes profesionales y los patrones o empleadores en empresas de cinco trabajadores o menos;
-* Desocupado: Se incluye la población que en la semana de referencia se encontraba sin empleo; hicieron diligencias en el último mes; No hicieron diligencias en el último mes, pero sí en los últimos 12 meses y tienen una razón válida de desaliento; poseen disponibilidad.
+
+* Informal: Hace referencia a los empleados particulares y los obreros que laboran en establecimientos, negocios o empresas que ocupen hasta cinco personas en todas sus agencias y sucursales, incluyendo al patrono y/o socio; los trabajadores familiares sin remuneración; los trabajadores sin remuneración en empresas o negocios de otros hogares; Los empleados domésticos; los jornaleros o peones; los trabajadores por cuenta propia que laboran en establecimientos hasta cinco personas, excepto los independientes profesionales y los patrones o empleadores en empresas de cinco trabajadores o menos. 
+
+* Desocupado: Se incluye la población que en la semana de referencia se encontraba sin empleo; hicieron diligencias en el último mes; No hicieron diligencias en el último mes, pero sí en los últimos 12 meses y tienen una razón válida de desaliento; poseen disponibilidad. 
 
 De acuerdo a lo presentado anteriormente, se observa en la Tabla 1, que los empleados informales representan la gran mayoría de las personas encuestadas. En este sentido, se observa que los informales abarcan el 65,9% del total de encuestados, mientras que los ocupados le siguen en segundo lugar con el 20% y los desocupados con el 14% 
 
@@ -291,7 +284,7 @@ Con el fin de complementar la información presentada por la Tabla 3. La Figura 
 Por otro lado, no se tiene evidencia que un mayor tiempo en Colombia influya en obtener algún tipo de empleo u ocupación formal, dado que el volumen de la población que lleva más de 5 años en Colombia no es significativo en el nivel de ocupado. Similarmente, se aprecia que el volumen de las personas ocupadas que llevan menos de 1 año en Colombia es similar al volumen de las que se encuentran desocupadas.
 
 
-```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según sexo"}
+```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según tiempo en Colombia"}
 ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
   geom_bar(position="dodge", stat = "identity") + 
   scale_fill_manual(name="Tiempo en Colombia", values=c("slategray","slategray3", "slategray2")) +
@@ -307,6 +300,26 @@ ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) +
 ### Panorama con respecto al nivel de educación
 
 
+El DANE también registra el nivel de educación de los encuestados. En este caso se clasifican los niveles de educación de acuerdo a lo que ellos denominan Educación formal, concepto que abarca los niveles de preescolar, básica, dividida en primaria y secundaria y media, a la cual también incorporan la formación superior o universitaria.
+La tabla 4 presenta de forma resumida la información. Allí se puede identificar que sin importar el nivel educativo alcanzado, la población de inmigrantes informales predomina en todos los casos. Similarmente, la mayor cantidad de encuestados poseen una formación media o básica secundaria.
+
+
+```{r, echo=FALSE, fig.cap="Tabla 4: Ocupación según nivel educativo alcanzado", fig.align="center"}
+kable(Y4_education)
+```
 
 
 
+Por otro lado, la Figura 5 muestra de manera gráfica cómo se da esta distribución de ocupación basado en los distintos niveles educativos. Resulta esperado que el nivel de Informal tenga el mayor número de observaciones pues en dicha clase pues es la tendencia que se ha apreciado en gráficas anteriores. Asimismo, es significativo resaltar que para el nivel de ocupado, no existe una diferencia amplia entre aquellos que poseen una educación media o una superior, lo cual podría indicar que las personas con estos niveles de educación obtienen algún tipo de empleo aproximadamente en la misma medida.
+Similarmente, para el nivel de desocupado, se aprecia que el volumen de personas que cuentan con una preparción superior es muy similar al de las personas con educación básica secundaria. Cabe aclarar que en este caso, la población de Desocupados es inferior a las de los demás niveles, lo cual demuestra un alto volumen de inmigrantes que están haciendo algún tipo de actividad económica.
+
+
+```{r, echo=FALSE, fig.cap="Figura 5: Ocupación según nivel educativo", fig.width=7}
+ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray") +  geom_text(aes(x=Nivel.educativo.alcanzado, y=Frecuencia, label=Frecuencia), hjust=-0.1, size=3) + theme_classic() +
+  ggtitle("Niveles de educación Inmigrantes Informales") + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
+  labs(x="Nivel de educación" ,y="Frecuencia") +
+  coord_flip() + facet_wrap(~Y_modelo4)
+
+
+```

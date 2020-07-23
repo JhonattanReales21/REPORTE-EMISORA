@@ -117,6 +117,7 @@ table(Dane_paramodelos$Genero)
 #Imprimir esa tabla
 Y4_gender <- Dane_paramodelos %>%  group_by(Genero, Y_modelo4) %>% summarise(Frecuencia=n())
 Y4_gender$Proporcion <- c(Y4_gender[1,3]/9479, Y4_gender[2,3]/9479, Y4_gender[3,3]/9479, Y4_gender[4,3]/11653, Y4_gender[5,3]/11653, Y4_gender[6,3]/11653)
+Y4_gender$Proporcion.Total <- Y4_gender$Frecuencia/sum(Y4_gender$Frecuencia)
 Y4_female <- Y4_gender[1:3, ]
 Y4_male <- Y4_gender[4:6, ]
 

@@ -51,33 +51,34 @@ Y4_per_departamento$Departamento <- fct_collapse(Y4_per_departamento$Departament
 Y4_Informal <- filter(Dane_paramodelos, Y_modelo4=="Informal")
 Y4_Informal <- as.data.frame(table(as.factor(Y4_Informal$Rama.actividad)))
 Y4_Informal <- arrange(Y4_Informal, desc(Freq))
-Y4_Informal <- Y4_Informal[1:10, ]
-oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
-  ggtitle("Ramas de actividad en Inmigrantes Informales") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
-  theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
+Y4_Informal <- Y4_Informal[1:5, ]
+oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+  ggtitle("Ramas de actividad en Inmigrantes Informales") +  theme_classic() +
+  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12), axis.title.y  = element_blank()) + 
+ labs(x="Rama de Actividad" ,y="Frecuencia") +
   coord_flip()
 #Ocupado
 Y4_Ocupado <- filter(Dane_paramodelos, Y_modelo4=="Ocupado")
 Y4_Ocupado <- as.data.frame(table(as.factor(Y4_Ocupado$Rama.actividad)))
 Y4_Ocupado <- arrange(Y4_Ocupado, desc(Freq))
-Y4_Ocupado <- Y4_Ocupado[1:10, ]
-oc_ocupado <- ggplot(Y4_Ocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray3") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
-  ggtitle("Ramas de actividad en Inmigrantes Ocupados") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
-  theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
+Y4_Ocupado <- Y4_Ocupado[1:5, ]
+oc_ocupado <- ggplot(Y4_Ocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray3") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+  ggtitle("Ramas de actividad en Inmigrantes Ocupados") + theme_classic() +
+  theme(plot.title = element_blank(), text = element_text(size=12)) + 
+ labs(x="Rama de Actividad" ,y="Frecuencia") +
   coord_flip()
 #Desocupado
 Y4_Desocupado <- filter(Dane_paramodelos, Y_modelo4=="Desocupado")
 Y4_Desocupado <- as.data.frame(table(as.factor(Y4_Desocupado$Rama.actividad)))
 Y4_Desocupado <- arrange(Y4_Desocupado, desc(Freq))
-Y4_Desocupado <- Y4_Desocupado[1:10, ]
-oc_desocupado <- ggplot(Y4_Desocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray2") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1) + 
-  ggtitle("Ramas de actividad en Inmigrantes Desocupados") + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12,family = "Tahoma")) + 
-  theme_classic() + labs(x="Ocupación" ,y="Frecuencia", caption="Tomando las 10 ramas más relevantes") +
+Y4_Desocupado <- Y4_Desocupado[1:5, ]
+oc_desocupado <- ggplot(Y4_Desocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray2") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+  ggtitle("Ramas de actividad en Inmigrantes Desocupados") + theme_classic() +
+  theme(plot.title = element_blank(), text = element_text(size=12), axis.title.y  = element_blank()) + 
+ labs(x="Rama de Actividad" ,y="Frecuencia", caption="Tomando las 5 ramas más relevantes") +
   coord_flip()
-grid.arrange(oc_informal, oc_ocupado, oc_desocupado, nrow=1)
+
+
 
 Y4_activities <- NULL
 for (Dep in Depto){
@@ -96,13 +97,7 @@ Y4_activities$Departamento <- fct_collapse(Y4_activities$Departamento, "Antioqui
                                                  "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
                                                  "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
 
-ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
-  ggtitle("Ramas de actividad relevantes según departamento") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12)) + 
-  theme_classic()  + 
-  facet_wrap(~Departamento) + 
-  xlab("Ramas de actividad") + 
-  coord_flip()
+
 
 
 
@@ -114,6 +109,7 @@ table(Dane_paramodelos$Genero)
 #Imprimir esa tabla
 Y4_gender <- Dane_paramodelos %>%  group_by(Genero, Y_modelo4) %>% summarise(Frecuencia=n())
 Y4_gender$Proporcion <- c(Y4_gender[1,3]/9479, Y4_gender[2,3]/9479, Y4_gender[3,3]/9479, Y4_gender[4,3]/11653, Y4_gender[5,3]/11653, Y4_gender[6,3]/11653)
+Y4_gender$Proporcion.Total <- Y4_gender$Frecuencia/sum(Y4_gender$Frecuencia)
 Y4_female <- Y4_gender[1:3, ]
 Y4_male <- Y4_gender[4:6, ]
 
@@ -206,39 +202,73 @@ De acuerdo a lo presentado anteriormente, se observa en la Tabla 1, que los empl
 ```{r, echo=FALSE, fig.cap="Tabla 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
 kable(Y4_description)
 ```
+
+
+
+
 La Figura 1 muestra gráficamente cómo se distribuye la ocupación entre los inmigrantes encuestados por el DANE.
 
-```{r, echo=FALSE, fig.cap="Imagen 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+
+
+
+```{r, echo=FALSE, fig.cap="Figura 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
 ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(fill="slategray") + 
   geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12)) + 
-  theme_classic() 
+  ggtitle("Ocupación de inmigrantes en Colombia") +  theme_classic() +
+  theme(plot.title = element_text(hjust=0.5, face = "bold"), text = element_text(size=12))  
+ 
 ```
 
 Pasando a un análisis más detallado por departamento, es posible identificar en la Figura 2 que la informalidad predomina en todos los departamentos donde se efectuó la encuesta. En algunos como en los departamentos de Atlántico, La Guajira, Tolima o Risaralda la diferencia es significativa, ocupando esta clase más de 7 veces lo que las demás ocupan.
 
-```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación", fig.align="center", fig.width=7, fig.height=7}
 ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="slategray") + geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia), vjust=-0.3, size=3) + 
   ggtitle("Ocupación de inmigrantes en Colombia según departamento") +  theme_classic()  + 
-  theme(title = element_text(hjust=0.5), axis.text.x = element_text(angle = 90)) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold"), axis.text.x = element_text(angle = 90)) + 
   facet_wrap(~Departamento) + 
   xlab("Ocupación")
 ```
 
 ### Exploración de ocupación con respecto a Ramas de Actividad
 
-El DANE distingue de acuerdo a la Clasificación Internacional Uniforme de Ocupaciones (CIUO) múltiples ramas de actividad. De acuerdo a la cuesta realizada, se tiene un total de 56 ramas de actividad en las cuales se desempeñan los inmigrantes. La Figura 3 muestra de forma general cuáles son las ramas con mayor cantidad de encuestados de acuerdo a su ocupación.
+El DANE distingue de acuerdo a la Clasificación Industrial Internacional Uniforme de todas las Actividades Económicas (CIIU) múltiples ramas de actividad. De acuerdo a la cuesta realizada, se tiene un total de 56 ramas de actividad, las cuales corresponden a las actividades económicas que desempeñan los inmigrantes encuestados. 
 
+La Figura 3 muestra de forma general cuáles son las ramas más relevantes de acuerdo con la ocupación de los individuos. De allí se puede evidenciar que la rama con mayor predominancia en todos los niveles de ocupación es la de comercio al por mayor y al por menor. Esta incluye la reventa de productos nuevos o usados a minoristas, usuarios industriales, comerciales, institucionales o profesionales, a otros mayoristas, y a quienes actúan en calidad de agente o corredor en la compra o venta de mercancías en nombre de dichas personas o empresas. También incluye la reventa, al público en general, realizada en almacenes por departamentos, tiendas, supermercados, comisariatos, o cooperativas de consumidores, vendedores ambulantes, sistemas de ventas por teléfono o correo, etc. de productos nuevos, para su consumo y uso personal o doméstico.
 
+En segundo lugar está la rama de hoteles, restaurantes, bares y similares. La cual incluye el suministro, a cambio de una retribución, de alojamiento u hospedaje no permanente y de instalaciones o lugares para acampar, tanto al público en general, como exclusivamente a afiliados a una determinada organización, así como los servicios de restaurante que se prestan en combinación con los de alojamiento.
+Lo anterior indica que la gran mayoría de inmigrantes, independientemente de su ocupación, se desempeñan en dichas ramas de actividad de acuerdo a la encuesta del DANE.
 
-## Including Plots
+```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes", fig.align="center", fig.width=7.5}
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-
+grid.arrange(oc_informal, oc_ocupado, oc_desocupado, nrow=3)
 
 ```
+
+
+
+
+Similar al análisis realizado en la Figura 2, las principales ramas de actividad por departamento se presenta en la Figura 4. Allí se evidencia que en departamentos como Atlántico, Norte de Santander, La Guajira o Magdalena, se concentran la mayor cantidad de inmigrantes que laboran en las áreas de Comercio al por mayor y menor, así como también en Hoteles, restaurantes, bares y similares.
+
+
+
+```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes", fig.align="center",fig.width=8, fig.height=8}
+
+ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + coord_flip() + 
+  ggtitle("Ramas de actividad relevantes según departamento") + 
+  theme(plot.title = element_text(hjust=0.5, face = "bold"), text = element_text(size=12)) + 
+  theme_classic()  + 
+  facet_wrap(~Departamento) + 
+  xlab("Ramas de actividad") 
+
+```
+
+
+
+### Situación con respecto al género
+
+
+
+
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

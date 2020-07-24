@@ -396,7 +396,11 @@ t2$Departamento <- factor(t2$Departamento, levels = t2$Departamento)
                                 #--------.---------
                     #----------  Analisis por edad ----------
  
+<<<<<<< HEAD
  #Para este analisis nos quedamos con los migrantes con un ingreso menor a $2.500.0000
+=======
+ #Para este analisis nos quedamos con los migrantes con un ingreso menor a $1.800.0000
+>>>>>>> Rama-Jose
  t4 <- Dane %>% filter(Ingresos_total<=2500000)%>% group_by(Edad) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total), 0),`# De observaciones`=n() ) %>% 
    arrange(desc(`Ingreso promedio`))
  

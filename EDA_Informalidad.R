@@ -23,30 +23,73 @@ ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(fill="slategr
 
 # PER DEPARTAMENTO
 Depto <- c(5, 8,11, 13, 15, 17, 18, 19, 20, 23, 25, 27, 41, 44, 47, 50, 52, 54, 63, 66, 68, 70, 73, 76 )
-Y4_per_departamento <- NULL
-Dep=5
-for (Dep in Depto){
-  set_dept <- Dane_paramodelos %>% filter(Departamento == Dep )%>% group_by(Departamento, Y_modelo4) %>% summarise(Frecuencia=n())
-  set_dept <- set_dept %>% mutate(Proporción=set_dept$Frecuencia/sum(set_dept$Frecuencia))
-   Y4_per_departamento <- rbind(Y4_per_departamento, set_dept)
-}
-Y4_per_departamento$Departamento <- as.factor(Y4_per_departamento$Departamento)
-Y4_per_departamento$Departamento <- fct_collapse(Y4_per_departamento$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
-                                    "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
-                                    "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
-                                    "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
-                                    "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
-                                    "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+#Ocupado
+Y4_oc_ocupado <- Dane_paramodelos %>% filter(Y_modelo4 == "Ocupado") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_ocupado$Departamento <- as.factor(Y4_oc_ocupado$Departamento)
+Y4_oc_ocupado$Departamento <- fct_collapse(Y4_oc_ocupado$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                                 "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                                 "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                                 "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                                 "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                                 "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_ocupado <- Y4_oc_ocupado %>% arrange(desc(Frecuencia))
+Y4_oc_ocupado <- Y4_oc_ocupado[1:5,]
+plot_ocupado <- ggplot(Y4_oc_ocupado, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray3") + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  ggtitle("Departamentos más relevantes por ocupación") +
+  labs(x="Departamento" ,y="Frecuencia", subtitle = "Ocupación Formal") + theme_bw() +  
+  coord_flip() + 
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
-ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="slategray") + geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia según departamento") + 
-  theme(title = element_text(hjust=0.5), text = element_text(size=12,family = "Tahoma")) + 
-  theme_classic()  + 
-  facet_wrap(~Departamento) + 
-  xlab("Ocupación")
+#Informal
+Y4_oc_informal <- Dane_paramodelos %>% filter(Y_modelo4 == "Informal") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_informal$Departamento <- as.factor(Y4_oc_informal$Departamento)
+Y4_oc_informal$Departamento <- fct_collapse(Y4_oc_informal$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                           "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                           "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                           "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                           "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                           "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_informal <- Y4_oc_informal %>% arrange(desc(Frecuencia))
+Y4_oc_informal <- Y4_oc_informal[1:5,]
+plot_informal <- ggplot(Y4_oc_informal, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray3") + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  theme_bw() + 
+  theme(plot.title = element_blank()) + 
+  labs(x="Ocupación" ,y="Frecuencia", subtitle ="Ocupación Informal") +
+  coord_flip() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
+#Desocupado
+Y4_oc_desocupado <- Dane_paramodelos %>% filter(Y_modelo4 == "Desocupado") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_desocupado$Departamento <- as.factor(Y4_oc_desocupado$Departamento)
+Y4_oc_desocupado$Departamento <- fct_collapse(Y4_oc_desocupado$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                           "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                           "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                           "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                           "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                           "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_desocupado <- Y4_oc_desocupado %>% arrange(desc(Frecuencia))
+Y4_oc_desocupado <- Y4_oc_desocupado[1:5,]
+plot_desocupado <- ggplot(Y4_oc_desocupado, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray3") + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  theme_bw() +
+  ggtitle("Ramas de actividad en Inmigrantes Ocupados") +
+  theme(plot.title = element_blank(), text = element_text(size=12)) + 
+  labs(x="Ocupación" ,y="Frecuencia", subtitle="Ocupación Desocupado", caption="Tomando los 5 departamentos más relevantes") +
+  coord_flip() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
-
-
+grid.arrange(plot_ocupado, plot_informal, plot_desocupado, nrow=3)
 
 
                         ##### ANALYSIS WITH RESPECT TO ACTIVITY CATEGORY ######

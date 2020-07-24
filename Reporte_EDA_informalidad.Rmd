@@ -8,18 +8,33 @@ output:
 ---
 
 ```{r global, include=FALSE}
-
 library(tidyverse)
 library(Hmisc)
 library(gridExtra)
 library(knitr)
+library(RColorBrewer)
+library(ggthemes)
+library(viridis)
 
 
-Dane_paramodelos <- read.csv("Dane_paramodelos.csv", sep=",", fileEncoding = "Latin1")
-Y4_description <- describe(Dane_paramodelos)
+# Lectura de datos
+Dane_paramodelos <- read.csv("Dane_paramodelos.csv", sep=",")
+Dane <- read.csv("Dane_Paramodelos_regresion.csv", header = T, sep = ",", dec = ".")
+Dane$Departamento <- as.factor(Dane$Departamento)
+Dane$Departamento <- fct_collapse(Dane$Departamento, 
+                                  "Antioquia"= "5", "Atlántico"="8", "Bogotá"="11", "Bolívar"="13", "Boyaca"="15",
+                                  "Caldas"="17", "Caquetá"="18", "Cauca"="19", "Cesar"="20", "Córdoba"="23", 
+                                  "Cundinamarca"="25", "Chocó"="27","Huila"="41", "La Guajira"="44", "Magdalena"="47", 
+                                  "Meta"="50", "Nariño"="52", "Norte de Santander"="54","Quindío"="63", "Risaralda"="66",
+                                  "Santander"="68", "Sucre"="70", "Tolima"="73", "Valle"="76")
+
+
 
 
                             ##### GENERAL OVERVIEW OF OCCUPATION ######
+
+Y4_description <- describe(Dane_paramodelos)
+
 
 # TOTAL DATAFRAME
 Y4_description <- data.frame("Ocupación"=Y4_description$Y_modelo4$values$value, 
@@ -32,7 +47,7 @@ Y4_per_departamento <- NULL
 Dep=5
 for (Dep in Depto){
   set_dept <- Dane_paramodelos %>% filter(Departamento == Dep )%>% group_by(Departamento, Y_modelo4) %>% summarise(Frecuencia=n())
-  set_dept <- set_dept %>% mutate(Proporción=set_dept$Frecuencia/sum(set_dept$Frecuencia))
+  set_dept <- set_dept %>% mutate(`Proporción`=set_dept$Frecuencia/sum(set_dept$Frecuencia))
    Y4_per_departamento <- rbind(Y4_per_departamento, set_dept)
 }
 Y4_per_departamento$Departamento <- as.factor(Y4_per_departamento$Departamento)
@@ -158,6 +173,462 @@ Y4_time <- Dane_paramodelos %>% group_by(tiempo.en.colombia, Y_modelo4) %>% summ
 #Imprimir esta tabla
 Y4_education <- Dane_paramodelos %>%  group_by(Nivel.educativo.alcanzado, Y_modelo4) %>% summarise(Frecuencia = n())
 
+
+
+############################################################################
+###########################################################################
+##########################################################################
+          
+          #-----------------------------------------.------------------------------------------------
+          #----------------------- ANALISIS CON RESPECTO A LOS INGRESOS ----------------------------
+          #-----------------------------------------.------------------------------------------------
+
+#######.#######
+#----------  Exploración de población con mayores ingreso #------
+######.#######
+
+pob_mayor_ingreso <- Dane %>% filter(Ingresos_total>2500000) %>% droplevels()
+
+# ingreso con respecto a la ocupación
+Ingresos_prom_mayor <- pob_mayor_ingreso %>% group_by(ocupacion) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),0),
+                                                                               `Ingreso máximo`=max(Ingresos_total),
+                                                                               "# De observaciones"=n())
+
+p_ocup_mayor <- Dane %>% filter(Ingresos_total>2500000) %>% 
+  ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 60,fill="skyblue", color="black", alpha=0.8)+
+  ggtitle("Distribución de ingresos según la ocupación", subtitle = "(observaciones con mayores ingresos)")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(0.8),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(2500000,15000000), breaks = c(3.0e+06,5.0e+06,7.0e+06,9.0e+06,11.0e+06,13.0e+06,15.0e+06))+
+  geom_vline(data=Ingresos_prom_mayor, aes(xintercept=`Ingreso promedio`, color=ocupacion),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("black", "black"))+
+  facet_grid(ocupacion~.)
+
+#  ingreso con respecto al nivel educativo, grafico y tabla
+Tabla_educ_mayor <- Dane %>% filter(Ingresos_total>2500000)%>%  group_by(Nivel.educativo.alcanzado) %>% 
+  summarise("# De migrantes"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("% Con respecto al total de la muestra" = paste(round((`# De migrantes`/sum(`# De migrantes`)) *100, 2),"%")) %>%
+  select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`))
+
+Tabla_educ_mayor$Nivel.educativo.alcanzado <- factor(Tabla_educ_mayor$Nivel.educativo.alcanzado, levels = Tabla_educ_mayor$Nivel.educativo.alcanzado)
+
+p_educ_mayor <- Tabla_educ_mayor %>% ggplot(aes(x=Nivel.educativo.alcanzado, y= `Promedio de ingresos`, color=Nivel.educativo.alcanzado))+
+  geom_point(size=10) + geom_segment(aes(x = Nivel.educativo.alcanzado,
+                                         xend= Nivel.educativo.alcanzado,
+                                         y=3000000,
+                                         yend=`Promedio de ingresos`))+
+  theme_bw()+ labs(title = "Ingreso promedio según nivel educativo alcanzado", subtitle ="(observaciones con mayores ingresos)")+ 
+  xlab("")+ylab("")+scale_x_discrete(breaks="")+
+  scale_y_continuous(breaks = c(3.0e+06,4.0e+06,5.0e+06,6.0e+06,7.0e+06, 8.0e+06), limits = c(3.0e+06, 8.0e+06))+
+  theme(text =element_text(size = 14), legend.position = "bottom", legend.title = element_text(size = 0))+
+  theme(plot.title = element_text(size = rel(1), vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(0.8), vjust = 1.5, color="black") )+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.y = element_text(face = "bold")) + scale_color_viridis(option = "D", discrete = T )+
+  geom_text(aes(x=Nivel.educativo.alcanzado, label= `Promedio de ingresos`),
+            size=4.5, vjust=-1.5, hjust=0.5, col="black" )
+
+# Analizamos las ramas de actividad 
+
+Tabla_rama_mayor <- pob_mayor_ingreso %>%  group_by(Rama.actividad) %>% 
+  summarise("# De migrantes en esta rama"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("% de la muestra (>$2.5M) " = paste(round((`# De migrantes en esta rama`/sum(`# De migrantes en esta rama`)) *100, 2),"%")) %>%
+  select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`))
+
+# Analizamos la ubicación 
+
+Tabla_dep_mayor <- pob_mayor_ingreso %>%  group_by(Departamento) %>% 
+  summarise("# De migrantes en el departamento"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("% de la muestra (>$2.5M) " = paste(round((`# De migrantes en el departamento`/sum(`# De migrantes en el departamento`)) *100, 2),"%")) %>%
+  select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`))
+
+# Analizamos la ubicación y la ocupación
+
+Tabla_dep2_mayor <- pob_mayor_ingreso %>%  group_by(Departamento, ocupacion) %>% 
+  summarise("# De observaciones"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("% de la muestra (>$2.5M) " = paste(round((`# De observaciones`/sum(`# De observaciones`)) *100, 2),"%")) %>%
+  select(1,2,6,3,9,4,5,7,8)%>% arrange(Departamento, desc(`Promedio de ingresos`))
+
+
+#######.#######
+#----------  Exploración de población con ingresos menores a $2.500.000 #-----
+#######.######
+
+
+#----------  Analisis por segmentos de ocupacion y genero ----------
+
+#  frecuencia de ocupación en la base de datos
+tabla1 <- Dane %>% filter(Ingresos_total<=2500000) %>% group_by(ocupacion) %>% summarise(Frecuencia=n()) %>% ungroup() %>% 
+  mutate("%"=paste(round(Frecuencia/sum(Frecuencia), 2), "%")) %>% arrange(desc(Frecuencia))
+
+##### 1. ASALARIADOS #####
+
+# Filtramos las observaciones que ganen menos de 2.5 millones
+filter(Dane, Ingresos_total>=2500000 & ocupacion=="Asalariado") %>% nrow() # Solo 104 asalariados ganan mas de $2.500.000
+prueba <- Dane %>% filter(ocupacion=="Asalariado", Ingresos_total<=2500000)
+summary(prueba$Ingresos_total)
+
+
+# Observamos la distribución de ingresos de los asalariados 
+p_asal <- prueba %>% ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 70,fill="skyblue", color="black")+
+  ggtitle("Ingresos de Asalariados")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.4),hjust=0.5, vjust = 1.5, face = "bold", color="red2"))+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1)))+ theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+
+  geom_vline(aes(xintercept=mean(Ingresos_total)),
+             color="black", linetype="dashed", size=1.2)
+
+#Ingreso prom por genero
+Ingresos_1_gen <- prueba %>% group_by(Genero) %>% summarise(`Ingreso promedio para asalariados`=round(mean(Ingresos_total),2),
+                                                            "# De observaciones"=n()) %>% arrange(desc(`Ingreso promedio para asalariados`))
+
+
+# Ingresos de asalariados dependiendo del genero
+p_asal_gene1 <- prueba %>% ggplot(aes(x=Ingresos_total, fill=Genero)) +
+  geom_histogram(bins = 30,color="black", position = "identity", alpha=0.5)+
+  ggtitle("Ingresos de asalariados", subtitle = "Con respecto al género")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(face="italic",size = rel(1.1),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2500000))+scale_y_continuous(breaks= seq(0,800, by=100))+
+  geom_vline(data=Ingresos_1_gen, aes(xintercept=`Ingreso promedio para asalariados`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue")) 
+
+
+p_asal_gene2 <- prueba %>% ggplot(aes(x=Ingresos_total)) +
+  geom_histogram(bins = 30,color="black", fill="skyblue", position = "identity", alpha=0.5)+
+  ggtitle("Ingresos de asalariados", subtitle = "Con respecto al género")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(face="italic", size = rel(1.1),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2500000))+
+  geom_vline(data=Ingresos_1_gen, aes(xintercept=`Ingreso promedio para asalariados`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue"))+
+  facet_grid(Genero~.)
+
+
+##### 2. NO ASALARIADOS ####
+
+# Filtramos las observaciones que ganen menos de 2.5 millones
+filter(Dane, Ingresos_total>=2500000 & ocupacion=="No asalariado") %>% nrow() # Solo 117 asalariados ganan mas de $2.500.000
+prueba2 <- Dane %>% filter(ocupacion=="No asalariado" & Ingresos_total<=2500000)
+summary(prueba2$Ingresos_total)
+
+# Observamos la distribución de ingresos de los No asalariados 
+p_No_asal <- prueba2 %>% ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 70,fill="skyblue", color="black")+
+  ggtitle("Ingresos de No asalariados")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.4),hjust=0.5, vjust = 1.5, face = "bold", color="red2"))+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1)))+ theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+
+  geom_vline(aes(xintercept=mean(Ingresos_total)),
+             color="black", linetype="dashed", size=1.2)
+
+#Ingreso prom por genero para No asalariados
+Ingresos_2_gen <- prueba2 %>% group_by(Genero) %>% summarise(`Ingreso promedio para No asalariados`=round(mean(Ingresos_total),2),
+                                                             "# De observaciones"=n()) %>% arrange(desc(`Ingreso promedio para No asalariados`))
+
+# Ingresos de No asalariados dependiendo del genero
+p_No_asal_gen1 <- prueba2 %>% ggplot(aes(x=Ingresos_total, fill=Genero)) +
+  geom_histogram(bins = 30,color="black", position = "identity", alpha=0.5)+
+  ggtitle("Ingresos de No asalariados", subtitle = "Con respecto al género")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(face="italic",size = rel(1.1),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2500000))+
+  geom_vline(data=Ingresos_2_gen, aes(xintercept=`Ingreso promedio para No asalariados`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue")) 
+
+
+p_No_asal_gen2 <- prueba2 %>% ggplot(aes(x=Ingresos_total)) +
+  geom_histogram(bins = 30,color="black", fill="skyblue", position = "identity", alpha=0.8)+
+  ggtitle("Ingresos de No asalariados", subtitle = "Con respecto al género")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(face="italic", size = rel(1.1),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2500000))+
+  geom_vline(data=Ingresos_2_gen, aes(xintercept=`Ingreso promedio para No asalariados`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue"))+
+  facet_grid(Genero~.)
+
+
+##### 3. AMBOS SECTORES ####
+
+# Grafico y tabla de la distribución de ingresos dependiendo de la ocupación
+
+Ingresos_prom <- Dane %>%filter(Ingresos_total<=2500000) %>%  group_by(ocupacion) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),2))
+
+p_ingresos_ocup <- Dane %>% filter(Ingresos_total<=2500000) %>% 
+  ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 60,fill="skyblue", color="black", alpha=0.8)+
+  ggtitle("Distribución de ingresos según la ocupación")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2000000))+
+  geom_vline(data=Ingresos_prom, aes(xintercept=`Ingreso promedio`, color=ocupacion),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("black", "black"))+
+  facet_grid(ocupacion~.)
+
+# Grafico y tabla de la distribución de ingresos para ambos sectores con respecto al género y la ocupación
+
+Ingresos_ambos <- Dane %>%filter(Ingresos_total<=2500000) %>% group_by(Genero, ocupacion) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),2),
+                                                                                                        "# De observaciones"=n()) %>% arrange(desc(`Ingreso promedio`))
+
+p_ingresos_ocup_gene <- Dane %>% filter(Ingresos_total<=2000000) %>% 
+  ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 60,fill="skyblue", color="black", alpha=0.8)+
+  ggtitle("Distribución de ingresos según la ocupación \ny el género")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2000000))+
+  geom_vline(data=Ingresos_ambos, aes(xintercept=`Ingreso promedio`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue"))+
+  facet_grid(ocupacion~Genero)
+
+#--------.---------
+#----------  Analisis por departamentos ----------
+
+# Tabla con ingresos por departamento
+Tabla_dep2 <- Dane %>% filter(Ingresos_total<=2500000)%>%  group_by(Departamento) %>% 
+  summarise("# De migrantes"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("% Con respecto al total de la muestra" = paste(round((`# De migrantes`/sum(`# De migrantes`)) *100, 2),"%")) %>%
+  select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`))
+
+# Grafico con 12 departamentos con mayor ingreso promedio
+t2 <- Tabla_dep2 %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>%
+  filter(rank %in% 1:12) 
+t2$Departamento <- factor(t2$Departamento, levels = t2$Departamento)
+
+p_dep_mejor <- t2 %>% ggplot(aes(x=Departamento, y= `Promedio de ingresos`, color=Departamento))+
+  geom_point(size=7) + geom_segment(aes(x = Departamento,
+                                        xend= Departamento,
+                                        y=670000,
+                                        yend=`Promedio de ingresos`))+ ylim(670000,815000)+
+  theme_bw()+ labs(title = "Ingreso económico promedio", subtitle = "De migrantes por departamento")+ 
+  xlab("")+ylab("")+scale_x_discrete(breaks="")+
+  scale_y_continuous(breaks = c(680000, 700000, 720000, 740000, 760000,780000, 800000  ))+
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.1), vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1), vjust = 1.5, color="black") )+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.y = element_text(face = "bold")) + scale_color_brewer(palette ="Paired" )+
+  geom_text(aes(x=Departamento, label= `Promedio de ingresos`),
+            size=3.5, vjust=-1.3, hjust=0.5, col="black" )
+
+# Grafico con 12 departamentos con menor ingreso promedio
+t3 <- Tabla_dep2 %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>%
+  filter(rank %in% 13:24) 
+
+t3$Departamento <- factor(t3$Departamento, levels = t3$Departamento)
+
+p_dep_menor <- t3 %>% ggplot(aes(x=Departamento, y= `Promedio de ingresos`, color=Departamento))+
+  geom_point(size=7) + geom_segment(aes(x = Departamento,
+                                        xend= Departamento,
+                                        y=460000,
+                                        yend=`Promedio de ingresos`))+ ylim(460000,700000)+
+  theme_bw()+ labs(title = "Ingreso económico promedio", subtitle = "De migrantes por departamento")+ 
+  xlab("")+ylab("")+scale_x_discrete(breaks="")+
+  scale_y_continuous(breaks = c(480000, 510000, 540000, 570000, 600000,630000, 660000,690000 ))+
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.1), vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1), vjust = 1.5, color="black") )+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.y = element_text(face = "bold")) + scale_color_brewer(palette ="Paired" )+
+  geom_text(aes(x=Departamento, label= `Promedio de ingresos`),
+            size=3.5, vjust=-1.3, hjust=0.5, col="black" )
+
+
+#--------.---------
+#----------  Analisis por edad ----------
+
+# Tabla y grafico sobre el ingreso por edad
+t4 <- Dane %>% filter(Ingresos_total<=2500000)%>% group_by(Edad) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total), 0),`# De observaciones`=n() ) %>% 
+  arrange(desc(`Ingreso promedio`))
+
+p_ingresos_edad <- Dane %>% filter(Ingresos_total<=2500000)%>% 
+  ggplot(aes(x=Edad, y=Ingresos_total, fill=Edad))+geom_boxplot()+theme_stata(base_size = 15 )+
+  labs(title = "INGRESOS SEGÚN RANGO DE EDAD")+xlab("")+ scale_x_discrete(breaks="")+ylab("Ingresos por persona")+
+  theme(plot.title = element_text(size = rel(1.1), vjust = 1.5, face = "bold", color="black") )+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.y = element_text(face = "bold"))+ scale_fill_viridis(discrete = T, option = "E", alpha = 0.8)+
+  coord_flip()+stat_summary()
+
+#--------.---------
+#----------  Analisis por nivel educativo ----------
+
+# Tabla y grafico sobre el ingreso por nivel educativo
+t5 <- Dane %>% filter(Ingresos_total<=2500000)%>%
+  group_by(Nivel.educativo.alcanzado) %>% 
+  summarise(Ingreso_promedio=round(mean(Ingresos_total),0),
+            mediana=median(Ingresos_total),
+            `# De observaciones`=n()) %>% arrange(desc(mediana))
+
+Dane$Nivel.educativo.alcanzado <- factor(Dane$Nivel.educativo.alcanzado, levels = t5$Nivel.educativo.alcanzado)
+
+p_ingresos_educ <- Dane %>% filter(Ingresos_total<=2500000)%>% 
+  ggplot(aes(x=Nivel.educativo.alcanzado, y=Ingresos_total, fill=Nivel.educativo.alcanzado))+geom_boxplot()+theme_stata(base_size = 15 )+
+  labs(title = "INGRESOS SEGÚN NIVEL EDUCATIVO")+xlab("")+ scale_x_discrete(breaks="")+ylab("Ingresos por persona")+
+  theme(plot.title = element_text(size = rel(1.1), vjust = 1.5, face = "bold", color="black") )+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)), legend.title = element_blank())+ 
+  theme(axis.text.y = element_text(face = "bold"))+ scale_fill_viridis(discrete = T, option = "E", alpha = 0.8)+
+  coord_flip()+stat_summary()
+
+
+#--------.---------
+#----------  Analisis por Rama de actividad ----------
+
+# Tabla filtrando los migrantes con ingresos menores a $2.5000.000
+Tabla_rama1 <- Dane %>% filter(Ingresos_total<=2500000)%>%  group_by(Rama.actividad) %>% 
+  summarise("# De migrantes en esta rama"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("Porcentaje de la muestra" = paste(round((`# De migrantes en esta rama`/sum(`# De migrantes en esta rama`)) *100, 2),"%")) %>%
+  mutate("Rama.actividad"=unique(Rama.actividad)) %>% select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`)) 
+
+
+# Tabla sin ningún tipo de filtro
+Tabla_rama2 <- Dane %>%  group_by(Rama.actividad) %>% 
+  summarise("# De migrantes en esta rama"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>%
+  mutate("Porcentaje de la muestra" = paste(round((`# De migrantes en esta rama`/sum(`# De migrantes en esta rama`)) *100, 2),"%")) %>%
+  mutate("Rama.actividad"=unique(Rama.actividad)) %>% select(1,5,2,8,3,4,6,7)%>% arrange(desc(`Promedio de ingresos`))
+
+
+#--------.---------
+#----------  Analisis por variables en conjunto ----------
+
+# Tabla de departamento y rama de actividad filtrando las personas con ingresos menores a $2.500.000
+# y filtrando las ramas que tengan mas de 10 observaciones en cada departamento
+Tabla_Dep_Rama_1 <- Dane %>% filter(Ingresos_total<=2500000)%>%  group_by(Departamento, Rama.actividad) %>% 
+  summarise("# De migrantes en esta rama"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>% group_by(Departamento) %>% 
+  mutate("Porcentaje del departamento" = paste(round((`# De migrantes en esta rama`/sum(`# De migrantes en esta rama`)) *100, 2),"%")) %>% 
+  filter(`# De migrantes en esta rama` >=10) %>%
+  mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank %in% 1) %>% arrange(desc(`Promedio de ingresos`)) %>% 
+  select(1,2,6,3,9,4,5,7,8) 
+
+
+# Tabla de departamento y rama de actividad sin ningún filtro de ingresos, 
+# filtrando las ramas con 5 observaciones o mas por departamento
+Tabla_Dep_Rama_2 <- Dane %>%  group_by(Departamento, Rama.actividad) %>% 
+  summarise("# De migrantes en esta rama"=n(), "Q.1"=quantile(Ingresos_total, 0.25),
+            "Mediana"=median(Ingresos_total), "Promedio de ingresos"=round(mean(Ingresos_total),0),
+            "Q.3"=quantile(Ingresos_total, 0.75), "Ingreso maximo"=max(Ingresos_total)) %>% ungroup() %>% group_by(Departamento) %>% 
+  mutate("Porcentaje del departamento" = paste(round((`# De migrantes en esta rama`/sum(`# De migrantes en esta rama`)) *100, 2),"%")) %>% 
+    filter(`# De migrantes en esta rama` >=5) %>%
+  mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank %in% 1) %>% arrange(Departamento, desc(`Promedio de ingresos`)) %>% 
+  select(1,2,6,3,9,4,5,7,8)
+
+
+# Grafico y tabla de ingresos según género y edad
+
+Ingresos_gen_edad <- Dane  %>% filter(Ingresos_total<=1800000, Edad!="(11,14]") %>%  group_by(Genero, Edad) %>% 
+  summarise(`Ingreso promedio`=round(mean(Ingresos_total),2), `# De observaciones`=n()) %>% 
+  arrange(desc(`Ingreso promedio`))
+
+p_ingresos_gen_edad <- Dane %>% filter(Ingresos_total<=1800000, Edad!="(11,14]") %>% 
+  ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 60,fill="skyblue", color="black", alpha=0.8)+
+  ggtitle("Distribución de ingresos por edad y genéro")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size = rel(0.9)))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,1800000))+
+  geom_vline(data=Ingresos_gen_edad, aes(xintercept=`Ingreso promedio`, color=Genero),
+             linetype="dashed", size=1.2)+
+  scale_fill_brewer(palette = "Set1")+scale_color_manual(values = c("red", "blue"))+
+  facet_grid(Genero~Edad)
+
+
+
+
+# Tabla y grafico de ingresos según la edad y el nivel educativo
+
+Ingresos_edad_educ <- Dane %>% filter(Ingresos_total<=2500000) %>% filter(!(Nivel.educativo.alcanzado=="Preescolar")) %>% 
+  group_by(Edad, Nivel.educativo.alcanzado) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),2), `# De observaciones`=n()) %>% 
+  arrange(desc(`Ingreso promedio`))
+
+p <-  Dane %>% filter(Ingresos_total<=2500000,Edad!="(11,14]") %>% filter(!(Nivel.educativo.alcanzado=="Preescolar")) %>% 
+  group_by(Edad) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),2), `# De observaciones`=n()) %>% 
+  arrange((`Ingreso promedio`))
+
+Dane$Edad <- factor(Dane$Edad, levels = p$Edad)
+
+I <- Dane %>% filter(Ingresos_total<=2500000, Edad!="(11,14]") %>% filter(!(Nivel.educativo.alcanzado=="Preescolar")) %>% 
+  group_by(Edad, Nivel.educativo.alcanzado) %>% summarise(`Ingreso promedio`=round(mean(Ingresos_total),2), `# De observaciones`=n()) %>% 
+  arrange(desc(`Ingreso promedio`))
+
+p_ingresos_edad_educ <- Dane %>% filter(Ingresos_total<=2000000, Edad!="(11,14]") %>% filter(!(Nivel.educativo.alcanzado=="Preescolar")) %>% 
+  ggplot(aes(x=Ingresos_total)) + geom_histogram(bins = 60,fill="skyblue", color="black", alpha=0.8)+
+  ggtitle("Distribución de ingresos por edad y nivel educativo")+
+  xlab("Ingresos totales")+ylab("") + theme_bw() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  scale_x_continuous(limits = c(0,2000000))+
+  geom_vline(data=I, aes(xintercept=`Ingreso promedio`, color=Edad),
+             linetype="dashed", size=1.2)+scale_color_brewer(palette = "Set1")+
+  facet_grid(Edad~Nivel.educativo.alcanzado)
+
+
+
 ```
 
 ## INTRODUCCIÓN
@@ -167,7 +638,7 @@ El reporte pretende abarcar aspectos como ocupación, haciendo especial énfasis
 
 
 
-## ANÁLISIS DE OCUPACIÓN
+# ***ANÁLISIS DE OCUPACIÓN***
 
 ### Panorama General
 
@@ -339,3 +810,304 @@ ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Fre
 
 
 ```
+
+
+
+
+# ***ANALISIS DE INGRESOS***
+
+
+#### Un primer comentario
+
+bla bla bla
+
+* esto
+* aquello
+* y lo otro
+
+bla bla bla
+ 
+ 
+## **Exploración de población con mayores ingresos (>$2.5M)**
+ 
+
+bla bla  
+
+#### Con respecto a la ocupación
+ 
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_prom_mayor, caption = "Tabla : Ingreso promedio según ocupación (>$2.5M)", align = "c")
+```
+
+
+```{r, echo=FALSE, fig.cap="Figura : Ingresos según ocupación (>$2.5M)", fig.width=9, warning=FALSE}
+p_ocup_mayor
+
+```
+
+bla bla  
+
+#### Nivel educativo alcanzado
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_educ_mayor, caption = "Tabla : Ingreso promedio según nivel educativo alcanzado (>$2.5M)", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Ingresos según Nivel educativo (>$2.5M)", fig.width=9, warning=FALSE}
+p_educ_mayor
+
+```
+
+
+bla bla  
+
+#### Rama de actividad
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_rama_mayor, caption = "Tabla : Ingresos según rama de actividad (>$2.5M)", align = "c")
+```
+ 
+#### Ubicacón
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_dep_mayor, caption = "Tabla : Ingresos según ubicación (>$2.5M)", align = "c")
+```
+
+
+## **Exploración de población con ingresos menores a $2.500.000**
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(tabla1, caption = "Tabla : Numero de observaciones según ocupación", align = "c")
+```
+ 
+bla bla  
+
+### *Asalariados*
+
+Tienen un valor promedio de $767.130
+
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos para asalariados", fig.width=9, warning=FALSE}
+p_asal
+
+```
+
+bla bla  
+
+#### Situación con respecto al genero
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_1_gen, caption = "Tabla : Ingreso promedio para asalariados con respecto al género", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+p_asal_gene1
+
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+p_asal_gene2
+
+```
+
+### *No asalariados*
+
+Tienen un valor promedio de $545.035
+
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos para No asalariados", fig.width=9, warning=FALSE}
+p_No_asal
+
+```
+
+bla bla  
+
+#### Situación con respecto al genero
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_2_gen, caption = "Tabla : Ingreso promedio para No asalariados con respecto al género", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+p_No_asal_gen1
+
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+p_No_asal_gen2
+
+```
+
+
+
+### *Alasariados y no asalariados*
+
+
+bla bla
+
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_prom, caption = "Tabla : Ingreso promedio según ocupación", align = "c")
+```
+
+```{r echo=FALSE, fig.cap="Figura : Distribución de ingresos según la ocupación", fig.width=9, warning=FALSE}
+p_ingresos_ocup
+
+```
+
+bla bla  
+
+#### Analisis con respecto al género y la ocupación
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_ambos, caption = "Tabla : Ingreso promedio según género y ocupación", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género y ocupación", fig.width=9, warning=FALSE}
+p_ingresos_ocup_gene
+
+```
+
+#### Analisis de ingresos con respecto al departamento
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_dep2, caption = "Tabla : Ingresos según el departamento de los inmigrantes", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Departamentos con ingreso promedio mayor por inmigrante", fig.width=9, warning=FALSE,fig.height=7}
+p_dep_mejor
+
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Departamentos con ingreso promedio menor por inmigrante", fig.width=9, warning=FALSE, fig.height=7}
+p_dep_menor
+
+```
+
+bla bla  
+
+#### Analisis de ingresos con respecto a la edad  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(t4, caption = "Tabla : Ingreso promedio con respecto al rango de edad", align = "c")
+```
+
+```{r echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el rango de edad", fig.width=9, message=FALSE, warning=FALSE}
+p_ingresos_edad
+
+```
+
+bla bla    
+
+#### Analisis de ingresos con respecto al nivel educativo alcanzado  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(t5, caption = "Tabla : Ingreso promedio con respecto al nivel educativo", align = "c")
+```
+
+```{r echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el nivel eductivo alcanzado", fig.width=9, message=FALSE, warning=FALSE}
+p_ingresos_educ
+
+```
+
+bla bla  
+
+#### Analisis de ingresos con respecto a las ramas de actividad  
+
+bla bla  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_rama1, caption = "Tabla : Ingreso según rama de actividad (<= $2.5M)", align = "c")
+```
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_rama2, caption = "Tabla : Ingreso según rama de actividad, para toda la población ", align = "c")
+```
+
+bla bla  
+
+#### Analisis de ingresos según departamento y rama de actividad  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_Dep_Rama_1, caption = "Tabla : Rama de actividad con mayor ingreso promedio por departamento (<= $2.5M) ", align = "c")
+```
+
+bla bla
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Tabla_Dep_Rama_2, caption = "Tabla : Rama de actividad con mayor ingreso promedio por departamento, sin filtros de ingreso", align = "c")
+```
+
+bla bla  
+
+#### Analisis de ingresos según género y edad  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_gen_edad, caption = "Tabla : Ingreso promedio según género y edad", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el género y el rango de edad", fig.width=10, warning=FALSE}
+p_ingresos_gen_edad
+
+```
+
+bla bla  
+
+#### Analisis de ingresos según la edad y el nivel educativo alcanzado  
+
+bla bla  
+
+```{r, echo=FALSE, fig.align="center"}
+kable(Ingresos_edad_educ, caption = "Tabla : Ingreso promedio según edad y nivel educativo", align = "c")
+```
+
+```{r, echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según rango de edad y nivel educativo", fig.width=13, warning=FALSE, fig.height=7}
+p_ingresos_edad_educ
+
+```
+
+bla bla  
+
+
+
+
+# ***Conclusiones***
+
+
+
+
+
+
+
+
+

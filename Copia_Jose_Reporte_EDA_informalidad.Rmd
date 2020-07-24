@@ -28,20 +28,72 @@ Y4_description <- data.frame("Ocupación"=Y4_description$Y_modelo4$values$value,
 
 # PER DEPARTAMENTO
 Depto <- c(5, 8,11, 13, 15, 17, 18, 19, 20, 23, 25, 27, 41, 44, 47, 50, 52, 54, 63, 66, 68, 70, 73, 76 )
-Y4_per_departamento <- NULL
-Dep=5
-for (Dep in Depto){
-  set_dept <- Dane_paramodelos %>% filter(Departamento == Dep )%>% group_by(Departamento, Y_modelo4) %>% summarise(Frecuencia=n())
-  set_dept <- set_dept %>% mutate(Proporción=set_dept$Frecuencia/sum(set_dept$Frecuencia))
-   Y4_per_departamento <- rbind(Y4_per_departamento, set_dept)
-}
-Y4_per_departamento$Departamento <- as.factor(Y4_per_departamento$Departamento)
-Y4_per_departamento$Departamento <- fct_collapse(Y4_per_departamento$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
-                                    "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
-                                    "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
-                                    "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
-                                    "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
-                                    "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+#Ocupado
+Y4_oc_ocupado <- Dane_paramodelos %>% filter(Y_modelo4 == "Ocupado") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_ocupado$Departamento <- as.factor(Y4_oc_ocupado$Departamento)
+Y4_oc_ocupado$Departamento <- fct_collapse(Y4_oc_ocupado$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                                 "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                                 "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                                 "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                                 "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                                 "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_ocupado <- Y4_oc_ocupado %>% arrange(desc(Frecuencia))
+Y4_oc_ocupado <- Y4_oc_ocupado[1:5,]
+plot_ocupado <- ggplot(Y4_oc_ocupado, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  ggtitle("Departamentos más relevantes por ocupación") +
+  labs(x="Departamento" ,y="Frecuencia", subtitle = "Ocupación Formal") + theme_bw() +  
+  coord_flip() + 
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
+
+#Informal
+Y4_oc_informal <- Dane_paramodelos %>% filter(Y_modelo4 == "Informal") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_informal$Departamento <- as.factor(Y4_oc_informal$Departamento)
+Y4_oc_informal$Departamento <- fct_collapse(Y4_oc_informal$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                           "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                           "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                           "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                           "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                           "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_informal <- Y4_oc_informal %>% arrange(desc(Frecuencia))
+Y4_oc_informal <- Y4_oc_informal[1:5,]
+plot_informal <- ggplot(Y4_oc_informal, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  theme_bw() + 
+  theme(plot.title = element_blank()) + 
+  labs(x="Ocupación" ,y="Frecuencia", subtitle ="Ocupación Informal") +
+  coord_flip() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
+#Desocupado
+Y4_oc_desocupado <- Dane_paramodelos %>% filter(Y_modelo4 == "Desocupado") %>% group_by(Departamento) %>% summarise(Frecuencia = n())
+Y4_oc_desocupado$Departamento <- as.factor(Y4_oc_desocupado$Departamento)
+Y4_oc_desocupado$Departamento <- fct_collapse(Y4_oc_desocupado$Departamento, "Antioquia"="5", "Atlantico"="8", "Bogota"= "11", "Bolivar"=  "13", 
+                                           "Boyaca"= "15", "Caldas"="17", "Caqueta"= "18", "Cauca"= "19",
+                                           "Cesar"=  "20", "Cordoba"= "23", "Cundinamarca"="25", "Choco"="27", 
+                                           "Huila"= "41", "La Guajira"="44","Magdalena"= "47", "Meta"="50",
+                                           "Nariño"="52", "Norte de Santander"="54", "Quindio"="63", 
+                                           "Risaralda"="66", "Santander"="68", "Sucre"="70","Tolima"=  "73", "Valle"="76")
+Y4_oc_desocupado <- Y4_oc_desocupado %>% arrange(desc(Frecuencia))
+Y4_oc_desocupado <- Y4_oc_desocupado[1:5,]
+plot_desocupado <- ggplot(Y4_oc_desocupado, aes(x=reorder(Departamento, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Departamento, y=Frecuencia, label=Frecuencia), hjust=-0.1) + 
+  theme_bw() +
+  ggtitle("Ramas de actividad en Inmigrantes Ocupados") +
+  theme(plot.title = element_blank(), text = element_text(size=12)) + 
+  labs(x="Ocupación" ,y="Frecuencia", subtitle="Ocupación Desocupado", caption="Tomando los 5 departamentos más relevantes") +
+  coord_flip() + 
+  theme(text =element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
+
 
 
 
@@ -52,31 +104,49 @@ Y4_Informal <- filter(Dane_paramodelos, Y_modelo4=="Informal")
 Y4_Informal <- as.data.frame(table(as.factor(Y4_Informal$Rama.actividad)))
 Y4_Informal <- arrange(Y4_Informal, desc(Freq))
 Y4_Informal <- Y4_Informal[1:5, ]
-oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
-  ggtitle("Ramas de actividad en Inmigrantes Informales") +  theme_classic() +
+oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+  ggtitle("Ramas de actividad en Inmigrantes Informales") +  theme_bw() +
   theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12), axis.title.y  = element_blank()) + 
  labs(x="Rama de Actividad" ,y="Frecuencia", subtitle = "Inmigrantes Informales") +
-  coord_flip()
+  coord_flip() + 
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 #Ocupado
 Y4_Ocupado <- filter(Dane_paramodelos, Y_modelo4=="Ocupado")
 Y4_Ocupado <- as.data.frame(table(as.factor(Y4_Ocupado$Rama.actividad)))
 Y4_Ocupado <- arrange(Y4_Ocupado, desc(Freq))
 Y4_Ocupado <- Y4_Ocupado[1:5, ]
-oc_ocupado <- ggplot(Y4_Ocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray3") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+oc_ocupado <- ggplot(Y4_Ocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
   ggtitle("Ramas de actividad en Inmigrantes Ocupados") + theme_classic() +
   theme(plot.title = element_blank(), text = element_text(size=12)) + 
  labs(x="Rama de Actividad" ,y="Frecuencia", subtitle = "Inmigrantes Ocupados") +
-  coord_flip()
+  coord_flip() + 
+    theme(plot.title = element_blank()) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 #Desocupado
 Y4_Desocupado <- filter(Dane_paramodelos, Y_modelo4=="Desocupado")
 Y4_Desocupado <- as.data.frame(table(as.factor(Y4_Desocupado$Rama.actividad)))
 Y4_Desocupado <- arrange(Y4_Desocupado, desc(Freq))
 Y4_Desocupado <- Y4_Desocupado[1:5, ]
-oc_desocupado <- ggplot(Y4_Desocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(fill="slategray2") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
+oc_desocupado <- ggplot(Y4_Desocupado, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
   ggtitle("Ramas de actividad en Inmigrantes Desocupados") + theme_classic() +
   theme(plot.title = element_blank(), text = element_text(size=12), axis.title.y  = element_blank()) + 
  labs(x="Rama de Actividad" ,y="Frecuencia", caption="Tomando las 5 ramas más relevantes", subtitle = "Inmigrantes Desocupados") +
-  coord_flip()
+  coord_flip() + 
+    theme(plot.title =element_blank()) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
 
 
@@ -127,27 +197,28 @@ Y4_female$label <- paste0("\n Frecuencia: ", Y4_female$Frecuencia)
 Y4_male$label <- paste0("\n Frecuencia: ", Y4_male$Frecuencia)
 
 female_plot <- ggplot(Y4_female, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
-  geom_rect() +
+  geom_rect(alpha=0.5, color="black") +
   geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
-  scale_fill_manual(name= "Tipo de Ocupación", values=c("slategray","slategray3", "slategray2")) +
+  scale_fill_manual(name= "Tipo de Ocupación", values=c("yellow2","skyblue", "turquoise2")) +
   coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
   xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
   theme_void() +  
   ggtitle("Ocupación de mujeres inmigrantes") + 
-  theme(axis.text  = element_blank(),
-        plot.title = element_text( size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+  theme(axis.text  = element_blank()) + 
+    theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) 
+  
 
 
 male_plot <- ggplot(Y4_male, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Y_modelo4)) +
-  geom_rect() +
+  geom_rect(alpha=0.5, color="black") +
   geom_label( x=4, aes(y=labelPosition, label=label), size=3.3) +
-  scale_fill_manual(name= "Tipo de Ocupación", values=c("slategray","slategray3", "slategray2")) +
+  scale_fill_manual(name= "Tipo de Ocupación", values=c("yellow2","skyblue", "turquoise2")) +
   coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
   xlim(c(0.2, 4)) +  # Try to remove that to see how to make a pie chart
   theme_void() +  
   ggtitle("Ocupación de hombres inmigrantes") + 
-  theme(axis.text  = element_blank(),
-        plot.title = element_text(size = 12, face = "bold", hjust = 0.7, vjust=0.5))
+  theme(axis.text  = element_blank()) + 
+    theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) 
 
 
                                 ##### ANALYSIS WITH RESPECT TO TIME IN COLOMBIA ######
@@ -195,21 +266,24 @@ La Figura 1 muestra gráficamente cómo se distribuye la ocupación entre los in
 
 
 ```{r, echo=FALSE, fig.cap="Figura 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
-ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(fill="slategray") + 
+ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + 
   geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia") +  theme_classic() +
-  theme(plot.title = element_text(hjust=0.5, face = "bold"), text = element_text(size=12))  
+  ggtitle("Ocupación de inmigrantes en Colombia") +  theme_bw() +
+  theme(plot.title = element_text(hjust=0.5, face = "bold"), text = element_text(size=12)) + 
+  theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(face="italic",size = rel(1.1),hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))
  
 ```
 
 Realizando un análisis por departamento, es posible identificar en la Figura 2 que la informalidad predomina en todos los departamentos donde se efectuó la encuesta. En algunos como en los departamentos de Atlántico, La Guajira, Tolima o Risaralda la diferencia es significativa, ocupando esta clase más de 7 veces lo que las demás ocupan.
 
 ```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación por departamento", fig.align="center", fig.width=7, fig.height=7}
-ggplot(Y4_per_departamento, aes(x=Y_modelo4, y=Frecuencia)) + geom_col(fill="slategray") + geom_text(aes(x=Y_modelo4, y=Frecuencia, label=Frecuencia), vjust=-0.3, size=3) + 
-  ggtitle("Ocupación de inmigrantes en Colombia según departamento") +  theme_classic()  + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"), axis.text.x = element_text(angle = 90)) + 
-  facet_wrap(~Departamento) + 
-  xlab("Ocupación")
+grid.arrange(plot_ocupado, plot_informal, plot_desocupado, nrow=3)
+
 ```
 
 ### Exploración de ocupación con respecto a Ramas de Actividad
@@ -241,11 +315,17 @@ Por otro lado, en los departamentos anteriormente mencionados también destacan 
 
 ```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes por departamento", fig.align="center",fig.width=8, fig.height=8.5}
 
-ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(fill="slategray") + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + coord_flip() + 
-  ggtitle("Ramas de actividad relevantes para inmigrantes informales") +   theme_classic()  + 
+ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + coord_flip() + 
+  ggtitle("Ramas de actividad relevantes para inmigrantes informales") +   theme_bw()  + 
   theme(plot.title = element_text(face = "bold"), text = element_text(size=12)) + 
   facet_wrap(~Departamento) + 
-  xlab("Ramas de actividad") 
+  xlab("Ramas de actividad") + 
+  theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
 ```
 
@@ -291,13 +371,18 @@ Por otro lado, no se tiene evidencia que un mayor tiempo en Colombia influya en 
 
 ```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según tiempo en Colombia"}
 ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
-  geom_bar(position="dodge", stat = "identity") + 
-  scale_fill_manual(name="Tiempo en Colombia", values=c("slategray","slategray3", "slategray2")) +
+  geom_bar(position="dodge", stat = "identity", alpha=0.5, color="black") + 
+  scale_fill_manual(name="Tiempo en Colombia", values=c("yellow2","skyblue", "turquoise2")) +
   ggtitle("Ocupación según tiempo en Colombia") +
   xlab("Ocupación") +
   ylab("Frecuencia") +
-  theme_classic() + 
-  theme(plot.title = element_text(hjust=0.5, face="bold"))
+  theme_bw() + 
+    theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
 ```
 
@@ -331,11 +416,17 @@ Similarmente, para el nivel de desocupado, se aprecia que el volumen de personas
 
 
 ```{r, echo=FALSE, fig.cap="Figura 5: Ocupación según nivel educativo", fig.width=9.3}
-ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(fill="slategray") + theme_classic() +
+ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + theme_bw() +
   ggtitle("Niveles de educación Inmigrantes en Colombia") + 
   theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
   labs(x="Nivel de educación" ,y="Frecuencia") +
-  coord_flip() + facet_wrap(~Y_modelo4)
+  coord_flip() + facet_wrap(~Y_modelo4) + 
+      theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 14), legend.position = "none")+
+  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
+  theme(axis.text.y = element_text(face = "bold"))
 
 
 ```

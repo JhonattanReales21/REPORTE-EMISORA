@@ -279,7 +279,11 @@ ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(color="black"
  
 ```
 
-Realizando un análisis por departamento, es posible identificar en la Figura 2 que la informalidad predomina en todos los departamentos donde se efectuó la encuesta. En algunos como en los departamentos de Atlántico, La Guajira, Tolima o Risaralda la diferencia es significativa, ocupando esta clase más de 7 veces lo que las demás ocupan.
+Realizando un análisis por departamento, es posible identificar en la Figura 2 que la informalidad predomina en departamentos como Norte de Santander, Magdalena, La Guajira, Atlántico y Cesar entre otros. Asimismo se observa que para todos los departamentos graficados, el volumen de individuos informales predomina sobre los que están desocupados o los que tienen algún tipo de ocupación.
+
+Por otro lado, se observa que en Atlántico, Antioquia y Bogotá, se encuentra una alta concentración de individuos ocupados. Estos departamentos, junto con Valle y Santander, son los 5 departamentos con mayor volumen de ocupados de acuerdo a la encuesta GEIH.
+
+Con respecto a la desocupación, es evidente que Norte de Santander concentra un alto volumen de población que cae dentro de esta categoría, además de la ya mencionada alta cantidad de inmigrantes informales que ya reporta.
 
 ```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación por departamento", fig.align="center", fig.width=7, fig.height=7}
 grid.arrange(plot_ocupado, plot_informal, plot_desocupado, nrow=3)

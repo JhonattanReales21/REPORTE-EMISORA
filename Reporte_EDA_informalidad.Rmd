@@ -726,7 +726,7 @@ De acuerdo a lo presentado anteriormente, se observa en la Tabla 1, que los empl
 
 
 ```{r, echo=FALSE, fig.cap="Tabla 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
-kable(Y4_description, caption = "Tabla 1: Distribución de Inmigrantes según su ocupación")
+kable(Y4_description, caption = "Tabla 1: Distribución de Inmigrantes según su ocupación", align = "c")
 ```
 
 
@@ -738,6 +738,7 @@ La Figura 1 muestra gráficamente cómo se distribuye la ocupación entre los in
 
 
 ```{r, echo=FALSE, fig.cap="Figura 1: Distribución de Inmigrantes según su ocupación", fig.align="center", fig.width=8.5}
+
 ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + 
   geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
   ggtitle("Ocupación de inmigrantes en Colombia") +  theme_bw() +
@@ -757,7 +758,7 @@ Por otro lado, se observa que en Atlántico, Antioquia y Bogotá, se encuentra u
 
 Con respecto a la desocupación, es evidente que Norte de Santander concentra un alto volumen de población que cae dentro de esta categoría, además de la ya mencionada alta cantidad de inmigrantes informales que ya reporta.
 
-```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación por departamento", fig.align="center", fig.width=7, fig.height=7}
+```{r, echo=FALSE, fig.cap="Figura 2: Distribución de Inmigrantes según su ocupación por departamento", fig.align="center", fig.width=10, fig.height=7}
 grid.arrange(plot_ocupado, plot_informal, plot_desocupado, nrow=3)
 
 ```
@@ -798,7 +799,7 @@ ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(color="black", fill="skybl
   xlab("Ramas de actividad") + 
   theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
   theme(text = element_text(size = 14), legend.position = "none")+
-  theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
+  theme(plot.subtitle = element_text( vjust = 1.5, color="black") )+ 
   theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
   theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
   theme(axis.text.y = element_text(face = "bold"))
@@ -813,7 +814,7 @@ Para tener una visión más clara de cómo se distribuyen los niveles de ocupaci
 Otra observación relevante es que la proporción de hombres ocupados es superior a la de mujeres ocupadas (13,1% y 6,9% para hombres y mujeres respectivamente, con respecto al total de la base de datos). Por lo tanto, se deduce que la proporción de mujeres desocupadas es superior que la de hombres desocupado. Esto también puede ser comprobado en la Tabla 2
 
 ```{r, echo=FALSE, fig.cap="Tabla 2: Ocupación de acuerdo al género", fig.align="center"}
-kable(Y4_gender, caption = "Tabla 2: Ocupación de acuerdo al género")
+kable(Y4_gender, caption = "Tabla 2: Ocupación de acuerdo al género", align = "c")
 ```
 
 
@@ -834,7 +835,7 @@ La GEIH también analiza dentro de sus variables el tiempo que llevan los inmigr
 
 
 ```{r, echo=FALSE, fig.cap="Tabla 3: Ocupación según tiempo en Colombia", fig.align="center"}
-kable(Y4_time, caption = "Tabla 3: Ocupación según tiempo en Colombia")
+kable(Y4_time, caption = "Tabla 3: Ocupación según tiempo en Colombia", align = "c")
 ```
 
 
@@ -846,6 +847,7 @@ Por otro lado, no se tiene evidencia que un mayor tiempo en Colombia influya en 
 
 
 ```{r, echo=FALSE, fig.cap="Figura 6: Ocupación según tiempo en Colombia", fig.width=8, fig.height=8}
+
 ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
   geom_bar(position="dodge", stat = "identity", alpha=0.5, color="black") + 
   scale_fill_manual(name="Tiempo en Colombia", values=c("yellow2","skyblue", "turquoise2")) +
@@ -875,7 +877,7 @@ La población que mayor volumen de ocupación presenta es la que alcanzó un niv
 
 
 ```{r, echo=FALSE, fig.cap="Tabla 4: Ocupación según nivel educativo alcanzado", fig.align="center"}
-kable(Y4_education, caption = "Tabla 4: Ocupación según nivel educativo alcanzado")
+kable(Y4_education, caption = "Tabla 4: Ocupación según nivel educativo alcanzado", align = "c")
 ```
 
 
@@ -892,6 +894,7 @@ Similarmente, para el nivel de desocupado, se aprecia que el volumen de personas
 
 
 ```{r, echo=FALSE, fig.cap="Figura 7: Ocupación según nivel educativo", fig.width=9.3}
+
 ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + theme_bw() +
   ggtitle("Niveles de educación Inmigrantes en Colombia") + 
   theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 

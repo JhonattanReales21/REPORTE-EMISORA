@@ -4,10 +4,10 @@ author: Jhonattan Reales De la Asunción (jhonattanr@uninorte.edu.co), José Nav
   De la Cruz (jgnavarro@uninorte.edu.co)
 date: "7/23/2020"
 output:
-  html_document:
-    df_print: paged
   word_document:
     reference_docx: rmarkdown_template.docx
+  html_document:
+    df_print: paged
 ---
 
 ```{r global, include=FALSE}
@@ -122,7 +122,7 @@ Y4_Informal <- arrange(Y4_Informal, desc(Freq))
 Y4_Informal <- Y4_Informal[1:5, ]
 oc_informal <- ggplot(Y4_Informal, aes(x=reorder(Var1, Freq), y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + 
   ggtitle("Ramas de actividad en Inmigrantes Informales") +  theme_bw() +
-  theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12), axis.title.y  = element_blank()) + 
+  theme(plot.title = element_text(hjust=0.5, face="bold", size = rel(0.9)), text = element_text(size=12), axis.title.y  = element_blank()) +  
  labs(x="Rama de Actividad" ,y="Frecuencia", subtitle = "Inmigrantes Informales") +
   coord_flip() + 
   theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
@@ -737,7 +737,7 @@ La Figura 1 muestra gráficamente cómo se distribuye la ocupación entre los in
 
 
 
-```{r, echo=FALSE, fig.cap="Figura 1: Distribución de Inmigrantes según su ocupación", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Figura 1: Distribución de Inmigrantes según su ocupación", fig.align="center", fig.width=8.5}
 ggplot(Y4_description, aes(x=Ocupación, y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + 
   geom_text(aes(x=Ocupación, y=Frecuencia, label=Frecuencia), vjust=-0.3) + 
   ggtitle("Ocupación de inmigrantes en Colombia") +  theme_bw() +
@@ -772,7 +772,7 @@ En segundo lugar está la rama de hoteles, restaurantes, bares y similares. La c
 
 Lo anterior indica que la gran mayoría de inmigrantes, independientemente de su ocupación, se desempeñan en dichas ramas de actividad de acuerdo a la encuesta del DANE.
 
-```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes", fig.align="center", fig.width=7.5, fig.height=5}
+```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes", fig.align="center", fig.width=11, fig.height=10}
 
 grid.arrange(oc_informal, oc_ocupado, oc_desocupado, nrow=3)
 
@@ -789,11 +789,11 @@ Por otro lado, en los departamentos anteriormente mencionados también destacan 
 
 
 
-```{r, echo=FALSE, fig.cap="Figura 3: Ramas de ocupación más relevantes por departamento", fig.align="center",fig.width=8, fig.height=8.5}
+```{r, echo=FALSE, fig.cap="Figura 4: Ramas de ocupación más relevantes por departamento", fig.align="center",fig.width=10, fig.height=11}
 
 ggplot(Y4_activities, aes(x=Var1, y=Freq)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + geom_text(aes(x=Var1, y=Freq, label=Freq), hjust=-0.1, size=3) + coord_flip() + 
-  ggtitle("Ramas de actividad relevantes para inmigrantes informales") +   theme_bw()  + 
-  theme(plot.title = element_text(face = "bold"), text = element_text(size=12)) + 
+  ggtitle("Ramas de actividad relevantes para \ninmigrantes informales") +   theme_bw()  + 
+  theme(plot.title = element_text(face = "bold", size = 8), text = element_text(size=12)) + 
   facet_wrap(~Departamento) + 
   xlab("Ramas de actividad") + 
   theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
@@ -823,7 +823,7 @@ La Figura 4 presenta de manera más gráfica la información principal de la dis
 
 
 
-```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según sexo", fig.width=8.5, fig.height=5}
+```{r, echo=FALSE, fig.cap="Figura 5: Ocupación según sexo", fig.width=8.5, fig.height=5}
 grid.arrange(female_plot, male_plot,nrow=1)
 ```
 
@@ -845,7 +845,7 @@ Con el fin de complementar la información presentada por la Tabla 3. La Figura 
 Por otro lado, no se tiene evidencia que un mayor tiempo en Colombia influya en obtener algún tipo de empleo u ocupación laboral, dado que el volumen de la población que lleva más de 5 años en Colombia no es significativamente alto en el nivel de ocupado. Similarmente, se aprecia que el volumen de las personas ocupadas que llevan menos de 1 año en Colombia es similar al volumen de las que se encuentran desocupadas.
 
 
-```{r, echo=FALSE, fig.cap="Figura 4: Ocupación según tiempo en Colombia"}
+```{r, echo=FALSE, fig.cap="Figura 6: Ocupación según tiempo en Colombia", fig.width=8, fig.height=8}
 ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) + 
   geom_bar(position="dodge", stat = "identity", alpha=0.5, color="black") + 
   scale_fill_manual(name="Tiempo en Colombia", values=c("yellow2","skyblue", "turquoise2")) +
@@ -853,8 +853,8 @@ ggplot(Y4_time, aes(x=Y_modelo4, y=Frecuencia, fill=tiempo.en.colombia)) +
   xlab("Ocupación") +
   ylab("Frecuencia") +
   theme_bw() + 
-    theme(plot.title = element_text(size = rel(1.3),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
-  theme(text = element_text(size = 14), legend.position = "none")+
+    theme(plot.title = element_text(size = rel(1.2),hjust=0.5, vjust = 1.5, face = "bold", color="red2")) +
+  theme(text = element_text(size = 13))+
   theme(plot.subtitle = element_text(hjust=0.5, vjust = 1.5, color="black") )+ 
   theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
   theme(axis.text.x = element_text(face = "bold", size=rel(0.8)))+
@@ -891,7 +891,7 @@ Asimismo, es significativo resaltar que para el nivel de ocupado, no existe una 
 Similarmente, para el nivel de desocupado, se aprecia que el volumen de personas que cuentan con una preparción superior es muy similar al de las personas con educación básica secundaria. Cabe aclarar que en este caso, la población de Desocupados es inferior a las de los demás niveles, lo cual demuestra un alto volumen de inmigrantes que están haciendo algún tipo de actividad económica.
 
 
-```{r, echo=FALSE, fig.cap="Figura 5: Ocupación según nivel educativo", fig.width=9.3}
+```{r, echo=FALSE, fig.cap="Figura 7: Ocupación según nivel educativo", fig.width=9.3}
 ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Frecuencia)) + geom_col(color="black", fill="skyblue", position = "identity", alpha=0.5) + theme_bw() +
   ggtitle("Niveles de educación Inmigrantes en Colombia") + 
   theme(plot.title = element_text(hjust=0.5, face="bold"), text = element_text(size=12)) + 
@@ -913,137 +913,166 @@ ggplot(Y4_education, aes(x=reorder(Nivel.educativo.alcanzado, Frecuencia), y=Fre
 # ***ANALISIS DE INGRESOS***
 
 
-#### Un primer comentario
+### Consideraciones a tener en cuenta
 
-bla bla bla
+La Gran Encuesta Integrada de Hogares (GEIH) cuenta con diferentes campos referentes a los ingresos de las personas encuestadas. Estos campos se encuentran dividos acorde a los modulos o subgrupos de la encuesta, de esta manera se logra diferenciar los diferentes ingresos para las personas que cuenten con un salario, los independientes y en el caso de los desocupados serian los ultimos ingresos obtenidos. Se construyó una variable denomida **ingreso total** a partir de los diversos campos donde declaraban ingresos. Además de esto, se deben tener en cuenta los siguientes aspectos referentes al analisis de ingresos:
 
-* esto
-* aquello
-* y lo otro
+1. Para este analisis, el termino **ocupación**, tomará otro significado en pro de realizar conclusiones pertinentes. La ocupación se dividirá en *Asalariados* y *No asalariado*. Los asalariados son aquellas personas que reciben un salario fijo establecido, cuentan o no con algún tipo de prestación y otros beneficios de esta indolé, además, presentan una relación de subordinación, es decir, laboran para un empleador. Los no asalariados los podemos considerar como personas independientes, son aquellos que no cuentan con un salario fijo y pueden ser trabajadores por cuenta propia, patrones o empleadores, trabajadores familiares sin reumneración o trabajar para otros sin remuneración. Los dos campos de la variable ocupación no toma en cuenta si el tipo de ocupación es formal o informal.
+2. Los ingresos declarados en la encuesta se encuentran divididos en algunas variables según el tiempo en el que se obtuvieron, estos pueden ser de la ultima semana, ultimo mes o a lo largo del año según la pregunta que se responda. Para la construcción de la variable ingreso total, solo se tuvieron en cuenta los ingresos del ultimo mes.
+3. Como en la base de datos se encuentran datos tanto del 2019 como del 2020, se debe tener en cuenta la inflación a la hora de comparar los ingresos declarados en ambos años. Por lo tanto, para el 2019 se realizó la conversión de pesos constantes a pesos reales del 2020.
+4. Debido al amplio rango de ingresos declarados en la base de datos recolectada (desde 0 a $31.100.000), se toma la desición de dividir el analisis en 2. En primer lugar, se detallarán las caracteristicas de aquellos encuestados que ganen mas de 2.500.000 pesos colombianos, y luego profundizaremos en los que ganen menos de dicho valor.
 
-bla bla bla
- 
+Recordemos que el objetivo general del analisis de ingresos es caracterizar cuanto ganan los migrantes venezolanos en el territorio colombiano y que variables o aspectos de los migrantes influye en esto.
+.
+
+A continuación, comenzamos con el analisis de las personas que declararón **MÁS** de $2.500.000 de pesos. 
  
 ## **Exploración de población con mayores ingresos (>$2.5M)**
  
+En esta sección, analizaremos las caracteristicas relacionadas con el tipo de ocupación, el nivel educativo alcanzado, la rama de actividad y la ubicación en Colombia.
 
-bla bla  
+Cabe resaltar que los encuestados que presentan esta condición, representan solo el 1.2% de la base datos tomada para el analisis de ingresos (127 personas de 17.948)
 
-#### Con respecto a la ocupación
+### Con respecto al tipo de ocupación
  
-bla bla
+A partir de la distribución de ingresos para ambos tipos de ocupación, podemos observar que no existen grandes diferencias entre estas. El ingreso promedio y el numero de observaciones es muy similar tanto para asalariados como no asalariados, donde mas difieren es en el ingreso maximo, dado que se encuentra una persona asalariada con un ingreso mensual de $31.000.000 aproximadamente. 
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_prom_mayor, caption = "Tabla : Ingreso promedio según ocupación (>$2.5M)", align = "c")
+kable(Ingresos_prom_mayor, caption = "Tabla 5: Ingreso promedio según ocupación (>$2.5M)", align = "c")
 ```
 
 
-```{r, echo=FALSE, fig.cap="Figura : Ingresos según ocupación (>$2.5M)", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 8: Ingresos según ocupación (>$2.5M)", fig.width=9, warning=FALSE}
 p_ocup_mayor
 
 ```
 
-bla bla  
 
-#### Nivel educativo alcanzado
+### Nivel educativo alcanzado
 
-bla bla
+Para este aspecto se dejó por fuera el nivel preescolar dado que solo son 2 personas dijeron que contaban con este nivel educativo alcanzado. Podemos observar el ingreso promedio y el numero de observaciones para cada nivel educativo alcanzado a continuación:
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_educ_mayor, caption = "Tabla : Ingreso promedio según nivel educativo alcanzado (>$2.5M)", align = "c")
+kable(Tabla_educ_mayor, caption = "Tabla 6: Ingreso promedio según nivel educativo alcanzado (>$2.5M)", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Ingresos según Nivel educativo (>$2.5M)", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 9: Ingresos según Nivel educativo (>$2.5M)", fig.width=9, warning=FALSE}
 p_educ_mayor
 
 ```
 
+Notamos que el 75% de los migrantes con mayores ingresos presentan un nivel educativo mayor a $2.500.000 y cuentan con un promedio de ingresos situado en \$5.193.670 lo cual se puede considerar muy alto. A pesar de que solo hay 8 migrantes en esta muestra que cuentan con un nivel educativo de basica primaria, notamos que representan el mas alto promedio de ingresos por persona.
 
-bla bla  
+### Rama de actividad
 
-#### Rama de actividad
+Es de mucho interes observar cuales son aquellas ramas de actividad que presentan los migrantes con mayores ingresos. Esto lo podemos observar a continuación:
 
-bla bla
+
+```{r, echo=FALSE, fig.cap="Figura 10: Ingreso promedio para las 15 ramas con mayor ingreso promedio", fig.width=10, warning=FALSE}
+
+tb <- Tabla_rama_mayor
+m <- tb %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank<=15) 
+  
+m %>% ggplot(aes(x=Rama.actividad, y=`Promedio de ingresos`)) + geom_bar(stat = "identity", fill="skyblue", color="black", alpha=0.8)+ geom_text(aes(x=m$Rama.actividad, y=m$`Promedio de ingresos`, label=`# De migrantes en esta rama`) ,hjust=-0.4, size=5, )+ggtitle("Ingreso promedio según rama de actividad", subtitle = "Y numero de observaciones por cada rama")+scale_y_continuous(limits = c(0, 13000000))+theme_bw()+ theme(text =element_text(size = 14))+
+  theme(plot.title = element_text(size = rel(1.2), vjust = 1.5, face = "bold", color="red2") )+ 
+  theme(plot.subtitle = element_text(size = rel(0.8), vjust = 1.5, color="black") )+ 
+  theme(axis.title.x = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.title.y = element_text(face = "bold", size= rel(1.1)))+ 
+  theme(axis.text.x = element_text(face = "bold"))+
+  theme(axis.text.y = element_text(face = "bold"))+ 
+  coord_flip()
+
+```
+
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_rama_mayor, caption = "Tabla : Ingresos según rama de actividad (>$2.5M)", align = "c")
+Tabla_rama_mayor <- Tabla_rama_mayor %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank>15) %>% select(-rank)
+kable(Tabla_rama_mayor, caption = "Tabla 7: Ingresos según rama de actividad (>$2.5M)", align = "c")
 ```
  
-#### Ubicacón
+Podemos notar ramas de actividad como comercio al por mayor y al por menor, servicios de salud y la rama de construcción en las actividades con mayores ingresos promedios, siendo estas, ramas con un alto número de observaciones en toda la base de datos.
+ 
+### Ubicacón
 
-bla bla
+La distribución de los migrantes con mayores ingresos en los departamentos de Colombia es la siguiente:
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_dep_mayor, caption = "Tabla : Ingresos según ubicación (>$2.5M)", align = "c")
+Tabla_dep_mayor <- Tabla_dep_mayor %>% select(-c(Q.1, Q.3, Mediana))
+kable(Tabla_dep_mayor, caption = "Tabla 8: Ingresos según ubicación (>$2.5M)", align = "c")
 ```
 
+Notamos que la mayor proporción se encuentran en Bogota, Antioquia, Norte de Santander, Valle y la Guajira.
+
+A continuación, comenzamos con el analisis de las personas que declararón **MENOS** de $2.500.000 de pesos. 
 
 ## **Exploración de población con ingresos menores a $2.500.000**
 
-bla bla
+Ahoa, pasamos a caracterizar y detallar las caracteristicas de las personas con ingrenos menores a $2.500.000.
+En primer lugar, observamos las frecuencias y porcentajes del tipo de ocuación para las 17.731 personas que caen en esta condición.
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(tabla1, caption = "Tabla : Numero de observaciones según ocupación", align = "c")
+kable(tabla1, caption = "Tabla 9: Numero de observaciones según ocupación", align = "c")
 ```
  
-bla bla  
+Para fines de un analisis mas exhaustivo, lo dividiremos en 3 etapas. Primero, un analisis de solo asalariados, luego solo no asalariados y por ultimo, teniendo en cuenta a todas las personas.  
 
 ### *Asalariados*
 
-Tienen un valor promedio de $767.130
+En primer lugar, observaremos la distribución de ingresos. Los asalariados tienen un valor promedio general de $767.130 pesos
 
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos para asalariados", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 11: Distribución de ingresos para asalariados", fig.width=9, warning=FALSE}
 p_asal
 
 ```
 
-bla bla  
+Visualmente notamos como las personas se ubican con ingresos menores a $1.000.000.
 
-#### Situación con respecto al genero
+### Situación con respecto al genero
 
-bla bla
+Para corrobar si el género de los encuestados influye o no en los ingresos que estos obtienen, observaremos los siguientes graficos y tabla:
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_1_gen, caption = "Tabla : Ingreso promedio para asalariados con respecto al género", align = "c")
+kable(Ingresos_1_gen, caption = "Tabla 10: Ingreso promedio para asalariados con respecto al género", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 12: Distribución de ingresos según el género", fig.width=9, warning=FALSE}
 p_asal_gene1
 
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 13: Distribución de ingresos según el género", fig.width=9, warning=FALSE}
 p_asal_gene2
 
 ```
 
+Podemos notar claramente como el promedio de ingresos de las mujeres es menr que el de los hombres, dando evidencia de que en la muestra seleccionada existe una brecha salarial producto del género.
+
 ### *No asalariados*
 
-Tienen un valor promedio de $545.035
+Ahora, observaremos la distribución de ingresos pero de los no asalariados. Este segmento cuenta con un valor promedio de ingresos general de $545.035
 
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos para No asalariados", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 14: Distribución de ingresos para No asalariados", fig.width=9, warning=FALSE}
 p_No_asal
 
 ```
 
-bla bla  
 
-#### Situación con respecto al genero
+## Situación con respecto al genero
 
-bla bla
+De igual manera que con los asalariados, notamos que existe una becha salarial con respecto al género:
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_2_gen, caption = "Tabla : Ingreso promedio para No asalariados con respecto al género", align = "c")
+kable(Ingresos_2_gen, caption = "Tabla 11: Ingreso promedio para No asalariados con respecto al género", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 15: Distribución de ingresos según el género", fig.width=9, warning=FALSE}
 p_No_asal_gen1
 
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 16: Distribución de ingresos según el género", fig.width=9, warning=FALSE}
 p_No_asal_gen2
 
 ```
@@ -1052,158 +1081,163 @@ p_No_asal_gen2
 
 ### *Alasariados y no asalariados*
 
+Para esta sección del analisis, exploraremos diferentes caracteristicas y ambitos de todos los encuestados con un ingreso menor o igual a $2.500.000 sin discriminar o filtrar según el tipo de ocupación.
 
-bla bla
-
+Para empezar, observamos una vez mas pero en conjunto, la distribución de los ingresos con respecto al tipo de ocupación
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_prom, caption = "Tabla : Ingreso promedio según ocupación", align = "c")
+kable(Ingresos_prom, caption = "Tabla 12: Ingreso promedio según ocupación", align = "c")
 ```
 
-```{r echo=FALSE, fig.cap="Figura : Distribución de ingresos según la ocupación", fig.width=9, warning=FALSE}
+```{r echo=FALSE, fig.cap="Figura 17: Distribución de ingresos según la ocupación", fig.width=9, warning=FALSE}
 p_ingresos_ocup
 
 ```
 
-bla bla  
+Queda claro que existe una brecha de ingresos entre los dos tipos de ocupación, siendo los asalariados los que declarán una mayor cantidad de ingresos en comparación a los no asalariados. Esto puede deberse a que los asalariados reciben ingresos por auxilios monetarios, horas extras, primas laborales, prestaciones sociales, etc.
 
-#### Analisis con respecto al género y la ocupación
 
-bla bla  
+### Analisis con respecto al género y la ocupación
+
+Observamos en conjunto como tanto el género como el tipo de ocupación influyen en la distribución de ingresos de los encuestados.
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_ambos, caption = "Tabla : Ingreso promedio según género y ocupación", align = "c")
+kable(Ingresos_ambos, caption = "Tabla 13: Ingreso promedio según género y ocupación", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Distribución de ingresos según el género y ocupación", fig.width=9, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 18: Distribución de ingresos según el género y ocupación", fig.width=9, warning=FALSE}
 p_ingresos_ocup_gene
 
 ```
 
-#### Analisis de ingresos con respecto al departamento
+### Analisis de ingresos con respecto al departamento
 
-bla bla  
+A partir del siguiente analisis, podemos observar como en departamentos como Antioquia, Valle y Bogotá, se encuentran los mayores promedios de ingresos, y en departamentos como Norte de Santander, Santander y La Guajira se presentan los menores promedios de ingresos. Tambien podemos notar el porcentaje de inmigrantes en los diferentes departamentos del país. 
+
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_dep2, caption = "Tabla : Ingresos según el departamento de los inmigrantes", align = "c")
+Tabla_dep2 <- Tabla_dep2 %>% select(-c(Q.1,Q.3))
+kable(Tabla_dep2, caption = "Tabla 14: Ingresos según el departamento de los inmigrantes", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Departamentos con ingreso promedio mayor por inmigrante", fig.width=9, warning=FALSE,fig.height=7}
+```{r, echo=FALSE, fig.cap="Figura 19: Departamentos con ingreso promedio mayor por inmigrante", fig.width=9, warning=FALSE,fig.height=7}
 p_dep_mejor
 
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Departamentos con ingreso promedio menor por inmigrante", fig.width=9, warning=FALSE, fig.height=7}
+```{r, echo=FALSE, fig.cap="Figura 20: Departamentos con ingreso promedio menor por inmigrante", fig.width=9, warning=FALSE, fig.height=7}
 p_dep_menor
 
 ```
 
-bla bla  
 
-#### Analisis de ingresos con respecto a la edad  
+### Analisis de ingresos con respecto a la edad  
 
-bla bla  
+Para explorar este aspecto, dividiremos las edades en 5 grupos o clases. En primer lugar, observamos como la mayor proporción de encuestados se ubican entre los 26 y 59 años, le siguen los jovenes entre 18 y 26 años. 
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(t4, caption = "Tabla : Ingreso promedio con respecto al rango de edad", align = "c")
+kable(t4, caption = "Tabla 15: Ingreso promedio con respecto al rango de edad", align = "c")
 ```
 
-```{r echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el rango de edad", fig.width=9, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.cap="Figura 21: Ingresos de inmigrantes según el rango de edad", fig.width=9, message=FALSE, warning=FALSE}
 p_ingresos_edad
 
 ```
 
-bla bla    
+Notamos que los inmigrantes con edades entre 18 y 59 años presentan un promedio de ingresos similar, este ronda alrededor de los $650.000 pesos.
 
-#### Analisis de ingresos con respecto al nivel educativo alcanzado  
+### Analisis de ingresos con respecto al nivel educativo alcanzado  
 
-bla bla  
+Es de interés explorar si el nivel educativo influye de alguna manera en los ingresos de los inmigrantes, esto lo podemos analizar a continuación:  
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(t5, caption = "Tabla : Ingreso promedio con respecto al nivel educativo", align = "c")
+kable(t5, caption = "Tabla 16: Ingreso promedio con respecto al nivel educativo", align = "c")
 ```
 
-```{r echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el nivel eductivo alcanzado", fig.width=9, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.cap="Figura 22: Ingresos de inmigrantes según el nivel eductivo alcanzado", fig.width=9, message=FALSE, warning=FALSE}
 p_ingresos_educ
 
 ```
 
-bla bla  
+Lo que podemos notar es que al tener un titulo mayor al de bachiller, los ingresos promedios aumentan, no es grande la diferencia, pero si nos permite suponer cierta influencia.  
 
 #### Analisis de ingresos con respecto a las ramas de actividad  
 
-bla bla  
+En la siguiente tabla y grafica exploramos las ramas de actividad de los encuestados, la frecuencia en cada una de estas y el ingreso promedio que presentan. Hacemos visibles las 35 ramas con mayor ingreso promedio (de 56 ramas en total). Lo que podemos notar es que las ramas con mayor ingreso promedio presentan un promedio mayor a $800.000, además, observamos que dichas ramas no presentan casi observaciones, es decir, son pocos los inmigrantes que se encuentran laborando en las ramas con mayor ingreso promedio.
 
-bla bla  
 
-```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_rama1, caption = "Tabla : Ingreso según rama de actividad (<= $2.5M)", align = "c")
+```{r, echo=FALSE, fig.cap="Figura 23: Ingreso promedio para las 20 ramas con mayor ingreso promedio", fig.width=11, warning=FALSE}
+
+  tb2 <- Tabla_rama1
+  m2 <- tb2 %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank<=20) 
+  m2$Rama.actividad <- factor(m2$Rama.actividad, levels = m2$Rama.actividad)
+  
+  m2 %>% ggplot(aes(x=Rama.actividad, y=`Promedio de ingresos`)) + geom_bar(stat = "identity", fill="skyblue", color="black", alpha=0.8)+ 
+    geom_text(aes(x=m2$Rama.actividad, y=m2$`Promedio de ingresos`, label=`# De migrantes en esta rama`) ,hjust=-0.4, size=5, )+
+    ggtitle("Ingreso promedio según rama de actividad", subtitle = "Y numero de observaciones por cada rama")+scale_y_continuous(limits = c(0, 1700000))+
+    theme_bw()+ theme(text =element_text(size = 16))+
+    theme(plot.title = element_text(size = rel(1.1), vjust = 1.5, face = "bold", color="red2") )+ 
+    theme(plot.subtitle = element_text(size = rel(0.7), vjust = 1.5, color="black") )+ 
+    theme(axis.title.x = element_text(face = "bold", size= rel(1)))+ 
+    theme(axis.title.y = element_text(face = "bold", size= rel(1)))+ 
+    theme(axis.text.x = element_text(face = "bold"))+
+    theme(axis.text.y = element_text(face = "bold"))+ 
+    coord_flip() 
+
 ```
 
-bla bla  
-
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_rama2, caption = "Tabla : Ingreso según rama de actividad, para toda la población ", align = "c")
+Tabla_rama1 <- Tabla_rama1 %>% mutate("rank"=min_rank(desc(`Promedio de ingresos`))) %>% filter(rank>20, rank<=35) %>% select(-rank)
+kable(Tabla_rama1, caption = "Tabla 17: Ingreso según rama de actividad (<= $2.5M)", align = "c")
 ```
 
-bla bla  
+**Para la siguiente tabla se tomaron todos los encuestados sin filtrar según el ingreso, esto a manera de exploración adicional.**  podemos observar que las siguientes ramas presentan un promedio de ingresos muy alto de la mano de un numero de observaciones mayor al 0.3%:
+* Informatica y actividades conexas
+* Servicios sociales y de salud
+* Educación
+
+
+```{r, echo=FALSE, fig.align="center"}
+Tabla_rama2 <- Tabla_rama2 %>% mutate(rank=min_rank(desc(`Promedio de ingresos`))) %>%filter(rank<=20)%>%  select(1:4) 
+kable(Tabla_rama2, caption = "Tabla 18: Ingreso según rama de actividad, para toda la población ", align = "c")
+```
 
 #### Analisis de ingresos según departamento y rama de actividad  
 
-bla bla  
+**Para este caso, se tomaron todos los encuestados sin filtrar según el ingreso**. La tabla nos muestra la rama de actividad con mayor promedio de ingresos de cada departamento y el numero de observaciones correspondientes. La columna porcentaje del departamento corresponde al porcentaje que dicho número de inmigrantes en la rama de actividad representa en el total de inmigrantes del departamento.
+**¡¡Se eliminaron las ramas que tenian menos de 5 observaciones en cada departamento!!**
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_Dep_Rama_1, caption = "Tabla : Rama de actividad con mayor ingreso promedio por departamento (<= $2.5M) ", align = "c")
+Tabla_Dep_Rama_2 <- Tabla_Dep_Rama_2 %>% select(1:5)
+kable(Tabla_Dep_Rama_2, caption = "Tabla 19: Rama de actividad con mayor ingreso promedio por departamento, sin filtros de ingreso", align = "c")
 ```
 
-bla bla
+Una vez mas notamos como las actividades informaticas y los servicios de salud repuntan como las ramas con mayor ingreso promedio en diversos departamentos. Tambien notamos como la construcción y la educación resultan como niveles comunes.
+
+### Analisis de ingresos según género y edad  
+
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Tabla_Dep_Rama_2, caption = "Tabla : Rama de actividad con mayor ingreso promedio por departamento, sin filtros de ingreso", align = "c")
+kable(Ingresos_gen_edad, caption = "Tabla 20: Ingreso promedio según género y edad", align = "c")
 ```
 
-bla bla  
-
-#### Analisis de ingresos según género y edad  
-
-bla bla  
-
-```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_gen_edad, caption = "Tabla : Ingreso promedio según género y edad", align = "c")
-```
-
-```{r, echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según el género y el rango de edad", fig.width=10, warning=FALSE}
+```{r, echo=FALSE, fig.cap="Figura 24: Ingresos de inmigrantes según el género y el rango de edad", fig.width=10, warning=FALSE}
 p_ingresos_gen_edad
 
 ```
 
-bla bla  
+ 
+### Analisis de ingresos según la edad y el nivel educativo alcanzado  
 
-#### Analisis de ingresos según la edad y el nivel educativo alcanzado  
-
-bla bla  
 
 ```{r, echo=FALSE, fig.align="center"}
-kable(Ingresos_edad_educ, caption = "Tabla : Ingreso promedio según edad y nivel educativo", align = "c")
+kable(Ingresos_edad_educ, caption = "Tabla 21: Ingreso promedio según edad y nivel educativo", align = "c")
 ```
 
-```{r, echo=FALSE, fig.cap="Figura : Ingresos de inmigrantes según rango de edad y nivel educativo", fig.width=13, warning=FALSE, fig.height=7}
+```{r, echo=FALSE, fig.cap="Figura 25: Ingresos de inmigrantes según rango de edad y nivel educativo", fig.width=13, warning=FALSE, fig.height=7}
 p_ingresos_edad_educ
 
 ```
 
-bla bla  
-
-
-
 
 # ***Conclusiones***
-
-
-
-
-
-
-
-
-
